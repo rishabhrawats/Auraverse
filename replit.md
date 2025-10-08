@@ -1,0 +1,117 @@
+# AuraVerse AI - Mental Wellness Platform for Entrepreneurs
+
+## Overview
+
+AuraVerse AI is an AI-powered mental wellness platform specifically designed for entrepreneurs and startup founders. The application provides real-time effectiveness tracking through a proprietary Effectiveness Index (EI), therapeutic programs, encrypted journaling, zen mode sessions, and calendar integration. Built as a full-stack TypeScript application with a React frontend and Express backend, it emphasizes privacy, data security, and founder-specific mental wellness support.
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## System Architecture
+
+### Frontend Architecture
+- **Framework**: React with TypeScript using Vite as the build tool
+- **UI Components**: Shadcn/ui component library built on Radix UI primitives
+- **Styling**: Tailwind CSS with custom theming (neutral base color, CSS variables for theme tokens)
+- **Routing**: Wouter for client-side routing
+- **State Management**: TanStack Query (React Query) for server state management
+- **Forms**: React Hook Form with Zod validation via @hookform/resolvers
+
+### Backend Architecture
+- **Runtime**: Node.js with Express.js framework
+- **Language**: TypeScript with ES modules
+- **API Pattern**: RESTful API with route registration system
+- **Database ORM**: Drizzle ORM for type-safe database operations
+- **Authentication**: JWT-based authentication with bcrypt password hashing
+- **Build System**: esbuild for production bundling
+
+### Database Design
+- **Database**: PostgreSQL (configured for Neon serverless)
+- **Schema Location**: `/shared/schema.ts` for shared types between frontend and backend
+- **Key Tables**:
+  - `users` - User accounts with Stripe integration fields
+  - `profiles` - User preferences (venture stage, avatar archetype, stressors, timezone)
+  - `journals` - Encrypted journal entries with client-side encryption
+  - `eiSnapshots` - Effectiveness Index measurements with 6 sub-indices
+  - `programAssignments` - User enrollment in therapeutic programs
+  - `programSteps` - Daily program step tracking
+  - `zenSessions` - Meditation/focus session logs
+  - `calendarCreds` - Google Calendar OAuth credentials
+  - `subscriptions` - Payment plan management (Starter $5, Pro $99)
+
+### Core Features & Algorithms
+
+**Effectiveness Index (EI) Computation**:
+- 6-metric scoring system: Focus Efficiency, Recovery Latency, Decision Clarity, Emotion Regulation, Support Utilization, Strategic Momentum
+- Outputs FFF state classification (FIGHT/FLIGHT/FREEZE/REGULATED)
+- Located in `/server/lib/ei.ts`
+
+**Client-Side Encryption**:
+- Journal entries encrypted using Web Crypto API (AES-GCM)
+- PBKDF2 key derivation from user passwords
+- Encryption happens entirely in browser before transmission
+- Implementation in `/client/src/lib/crypto.ts` and `/server/lib/encryption.ts`
+
+**AI Program Generation**:
+- Dual AI provider support: OpenAI (GPT-5) and Anthropic (Claude Sonnet 4)
+- Generates personalized therapeutic program steps based on user profile and calendar context
+- Crisis language detection for safety protocols
+- Located in `/server/openai.ts` and `/server/anthropic.ts`
+
+### Authentication & Authorization
+- JWT tokens stored in localStorage with 7-day expiration
+- Token-based middleware for protected routes
+- Password hashing with bcrypt (12 rounds)
+- Mock authentication service for development (`/client/src/lib/auth.ts`)
+- Production-ready auth structure in `/server/lib/auth.ts`
+
+### API Structure
+- `/api/auth/*` - Authentication endpoints (register, login)
+- `/api/me` - User profile retrieval
+- `/api/journal/*` - Encrypted journal CRUD operations
+- `/api/programs/*` - Therapeutic program management
+- `/api/zen/*` - Zen mode session tracking
+- `/api/ei/*` - Effectiveness Index snapshots and trends
+- `/api/insights/*` - Data correlation and analytics
+- `/api/billing/*` - Stripe checkout and subscription management
+- `/api/calendar/*` - Google Calendar integration endpoints
+- `/api/privacy/*` - Data export and privacy controls
+
+## External Dependencies
+
+### Third-Party Services
+- **Payment Processing**: Stripe (with webhook support for subscription events)
+- **AI Providers**: 
+  - OpenAI API (GPT-5 model)
+  - Anthropic API (Claude Sonnet 4 fallback)
+- **Calendar Integration**: Google Calendar API with OAuth 2.0 and push notifications
+- **Database**: Neon Serverless PostgreSQL (via @neondatabase/serverless)
+
+### Key NPM Packages
+- **UI Framework**: React 18+ with TypeScript
+- **Backend**: Express.js with middleware for JSON/URL-encoded bodies
+- **Database**: Drizzle ORM with Drizzle Kit for migrations
+- **Validation**: Zod for schema validation
+- **Authentication**: jsonwebtoken, bcrypt
+- **Payment**: @stripe/stripe-js, @stripe/react-stripe-js
+- **API Client**: @tanstack/react-query for data fetching
+- **AI SDKs**: @anthropic-ai/sdk, openai
+- **Google APIs**: googleapis for Calendar integration
+
+### Environment Configuration
+Required environment variables:
+- `DATABASE_URL` - PostgreSQL connection string
+- `JWT_SECRET` - Secret for JWT signing
+- `STRIPE_SECRET_KEY` - Stripe API key
+- `STRIPE_WEBHOOK_SECRET` - Stripe webhook validation
+- `OPENAI_API_KEY` - OpenAI API access
+- `ANTHROPIC_API_KEY` - Anthropic API access
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Google OAuth credentials
+- `REPLIT_CONNECTORS_HOSTNAME` / `REPL_IDENTITY` - Replit connector integration
+
+### Development Tools
+- Vite with React plugin for HMR
+- Replit-specific plugins: runtime error overlay, cartographer, dev banner
+- PostCSS with Tailwind CSS and Autoprefixer
+- TypeScript strict mode with path aliases (`@/*`, `@shared/*`, `@assets/*`)
