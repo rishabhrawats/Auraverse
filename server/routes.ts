@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { Router } from "express";
 import { createServer, type Server } from "http";
+import passport from "passport";
 import Stripe from "stripe";
 import { z } from "zod";
 import { storage } from "./storage";
@@ -8,6 +9,7 @@ import { insertProfileSchema, insertJournalSchema } from "@shared/schema";
 import { generateProgramStep } from "./openai";
 import { generateProgramStepFallback, detectCrisisLanguage } from "./anthropic";
 import { createZenModeEvent, getCalendarWorkload, setupCalendarWatch } from "./googleCalendarClient";
+import { setupOAuth } from "./lib/oauth";
 
 // Stripe setup - Optional for now
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -53,6 +55,12 @@ function computeEI(signals: {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Initialize Passport
+  app.use(passport.initialize());
+  
+  // Setup OAuth (Google & LinkedIn)
+  setupOAuth(app);
   
   // Create API router
   const apiRouter = Router();

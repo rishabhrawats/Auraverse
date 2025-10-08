@@ -17,7 +17,7 @@ export const planTypeEnum = pgEnum('plan_type', ['STARTER_5', 'PRO_99']);
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: text("email").notNull().unique(),
-  passwordHash: text("password_hash").notNull(),
+  passwordHash: text("password_hash"), // Optional for OAuth users
   name: text("name"),
   role: userRoleEnum("role").default('FOUNDER'),
   stripeCustomerId: text("stripe_customer_id"),

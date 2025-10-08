@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { SiGoogle, SiLinkedin } from "react-icons/si";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -20,6 +21,22 @@ export default function SignIn() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Handle OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const oauthSuccess = params.get('oauth');
+
+    if (token && oauthSuccess === 'success') {
+      localStorage.setItem("auth_token", token);
+      toast({
+        title: "Welcome back!",
+        description: "You've successfully signed in.",
+      });
+      window.location.href = "/dashboard";
+    }
+  }, [toast]);
 
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
@@ -67,6 +84,41 @@ export default function SignIn() {
           <p className="text-muted-foreground mt-2" data-testid="text-signin-subtitle">
             Sign in to your account
           </p>
+        </div>
+
+        <div className="space-y-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full h-11"
+            onClick={() => window.location.href = '/api/auth/google'}
+            data-testid="button-google-signin"
+          >
+            <SiGoogle className="mr-2 h-5 w-5 text-[#4285F4]" />
+            Continue with Google
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full h-11"
+            onClick={() => window.location.href = '/api/auth/linkedin'}
+            data-testid="button-linkedin-signin"
+          >
+            <SiLinkedin className="mr-2 h-5 w-5 text-[#0A66C2]" />
+            Continue with LinkedIn
+          </Button>
+        </div>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with email
+            </span>
+          </div>
         </div>
 
         <Form {...form}>

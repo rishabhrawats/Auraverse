@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { SiGoogle, SiLinkedin } from "react-icons/si";
 
 const signUpSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -21,6 +22,51 @@ export default function SignUp() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Handle OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const oauthSuccess = params.get('oauth');
+    const error = params.get('error');
+
+    if (error === 'oauth_failed') {
+      toast({
+        title: "OAuth Failed",
+        description: "Unable to sign up with OAuth. Please try again.",
+        variant: "destructive",
+      });
+      window.history.replaceState({}, '', '/signup');
+    }
+
+    if (token && oauthSuccess === 'success') {
+      localStorage.setItem("auth_token", token);
+      
+      // Complete onboarding if data exists
+      const onboardingDataStr = sessionStorage.getItem('onboarding_data');
+      if (onboardingDataStr) {
+        const onboardingData = JSON.parse(onboardingDataStr);
+        apiRequest("POST", "/api/onboarding/complete", {
+          ...onboardingData,
+          consent: true,
+          timezone: onboardingData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+        }).then(() => {
+          sessionStorage.removeItem('onboarding_data');
+          toast({
+            title: "Welcome to AuraVerse!",
+            description: "Your account has been created successfully.",
+          });
+          window.location.href = "/dashboard";
+        });
+      } else {
+        toast({
+          title: "Welcome to AuraVerse!",
+          description: "Your account has been created successfully.",
+        });
+        window.location.href = "/dashboard";
+      }
+    }
+  }, [toast]);
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -85,6 +131,41 @@ export default function SignUp() {
           <p className="text-muted-foreground mt-2" data-testid="text-signup-subtitle">
             Create your account
           </p>
+        </div>
+
+        <div className="space-y-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full h-11"
+            onClick={() => window.location.href = '/api/auth/google'}
+            data-testid="button-google-signup"
+          >
+            <SiGoogle className="mr-2 h-5 w-5 text-[#4285F4]" />
+            Continue with Google
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full h-11"
+            onClick={() => window.location.href = '/api/auth/linkedin'}
+            data-testid="button-linkedin-signup"
+          >
+            <SiLinkedin className="mr-2 h-5 w-5 text-[#0A66C2]" />
+            Continue with LinkedIn
+          </Button>
+        </div>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with email
+            </span>
+          </div>
         </div>
 
         <Form {...form}>
