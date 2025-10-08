@@ -1,0 +1,401 @@
+Awesome—here’s a **Replit-first, engineer-grade build brief** that folds in every change you asked for and reads like something you’d hand a senior full-stack team. It’s opinionated, production-leaning, and tailored to your Medium MVP.
+
+# AuraVerse AI — Replit Medium MVP (Engineering Plan)
+
+## Product constants (locked for this MVP)
+
+* **Tagline**: “It’s time—build your legacy as soon as the journey starts.”
+* **Audience**: Individuals only (entrepreneurs, startup founders).
+* **Plans**: Starter **$5/mo**, Pro **$99/mo**. No group/company tiers.
+* **Key replacements**:
+
+  * Resilience Score → **Effectiveness Index (EI)** + **Effectiveness Score**
+  * “Tools/Toolkit” → **Therapeutic Practices & Programs**
+  * “AI coaching” → **AI Assistance–based Coaching Programs**
+* **New onboarding options**:
+
+  * Venture stage: add **Pre-IPO**, **IPO**.
+  * Primary stressors: add **Personal Life**, **Sales**.
+
+---
+
+## Replit architecture (4 deployments)
+
+1. `auraverse-web` (Next.js/React + TS) — **Static Deployment**
+2. `auraverse-api` (NestJS + TS, Prisma, Zod) — **Reserved VM** (start 1vCPU/4GB)
+3. `auraverse-hooks` (Node worker) — **Autoscale** (webhooks: Stripe, Google Calendar push notifications)
+4. `auraverse-cron` (Node) — **Scheduled** (daily nudges, weekly EI digest, data hygiene)
+
+**External services**:
+
+* **Postgres** (Neon/Supabase), **Redis** (Upstash) for queues/rate-limits
+* **Stripe/Razorpay** for payments (use Stripe first for speed)
+* **Google Calendar** (OAuth + Push notifications)
+* Optional: **Clerk/NextAuth** for Auth; I recommend **NextAuth** to keep infra simple
+
+---
+
+## Environment & secrets (all services)
+
+```
+NODE_ENV=production
+DATABASE_URL=postgres://...
+REDIS_URL=...
+JWT_SECRET=...
+NEXTAUTH_URL=https://<web-domain>
+NEXTAUTH_SECRET=...
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+GOOGLE_API_KEY=...             # only if you use service APIs
+GOOGLE_CALENDAR_REDIRECT_URI=https://<web-domain>/api/oauth/google/callback
+GOOGLE_CALENDAR_WEBHOOK_DOMAIN=https://<hooks-domain>/gcal/notify
+ENCRYPTION_KEY_ROTATE_AT=2026-01-01
+```
+
+---
+
+## Domain model (Prisma schema highlights)
+
+```prisma
+model User {
+  id            String  @id @default(cuid())
+  email         String  @unique
+  name          String?
+  role          UserRole @default(FOUNDER) // FOUNDER | THERAPIST | ADMIN (therapist optional this MVP)
+  profile       Profile?
+  subscriptions Subscription[]
+  journals      Journal[]
+  sessions      Session[]
+  eiSnapshots   EISnapshot[]
+  calendarCred  CalendarCred?
+  createdAt     DateTime @default(now())
+}
+
+model Profile {
+  userId           String @id
+  ventureStage     VentureStage // IDEA, PRESEED, SEED, SERIES_A, GROWTH, PRE_IPO, IPO
+  primaryStressors String[]      // e.g. ["Cashflow","Team","Personal Life","Sales"]
+  avatarArchetype  AvatarType    // VISIONARY, OPERATOR, etc.
+  sleepHours       Float?
+  workloadHrsWk    Int?
+  timezone         String
+  consentAt        DateTime?
+  user             User @relation(fields: [userId], references: [id])
+}
+
+model Journal {
+  id            String   @id @default(cuid())
+  userId        String
+  title         String?
+  bodyCipher    Bytes    // client-side encrypted blob
+  tags          String[]
+  summary       String?  // AI summary stored only with explicit consent
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id])
+}
+
+model EISnapshot {
+  id        String   @id @default(cuid())
+  userId    String
+  score     Int      // 0–100
+  // Sub-indices (all 0–100):
+  focusEfficiency     Int
+  recoveryLatency     Int // lower is better, transform to higher-is-better scale in compute
+  decisionClarity     Int
+  emotionRegulation   Int
+  supportUtilization  Int
+  strategicMomentum   Int
+  state               RegState // FIGHT, FLIGHT, FREEZE, REGULATED
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model ProgramAssignment {
+  id           String  @id @default(cuid())
+  userId       String
+  programCode  String  // "FOUNDERS-FOCUS-7D", "SLEEP-RESET-10D", etc.
+  startAt      DateTime
+  status       ProgramStatus // ACTIVE, PAUSED, DONE
+  user         User    @relation(fields: [userId], references: [id])
+}
+
+model CalendarCred {
+  userId          String  @id
+  provider        String  @default("google")
+  refreshToken    String
+  accessToken     String
+  expiryAt        DateTime
+  watchChannelId  String? // for push notifications
+  watchResourceId String?
+  user            User     @relation(fields: [userId], references: [id])
+}
+
+model Subscription {
+  id             String   @id @default(cuid())
+  userId         String
+  provider       String   // STRIPE
+  priceCode      String   // STARTER_5, PRO_99
+  status         String   // ACTIVE, CANCELED, INCOMPLETE
+  currentPeriodEnd DateTime
+  user           User     @relation(fields: [userId], references: [id])
+}
+```
+
+---
+
+## Effectiveness Index (EI) — computation v1
+
+* **Definition**: “How effectively a founder converts energy/time into calm, focused, value-creating action.”
+* **Sub-indices (0–100)**:
+
+  1. **Focus Efficiency** (time-on-task vs planned; subjective focus 1–5 scaled)
+  2. **Recovery Latency** (time to regulate after spikes; normalize to higher-is-better)
+  3. **Decision Clarity** (self-ratings + indecision markers)
+  4. **Emotion Regulation** (variability, rumination markers)
+  5. **Support Utilization** (journaling cadence, therapeutic practice adherence)
+  6. **Strategic Momentum** (weekly completion of “one important thing”)
+* **Composite**: weighted average; start equal weights; store weights per version for explainability.
+
+`auraverse-api/src/lib/ei.ts` (pseudo):
+
+```ts
+export function computeEI(input: DomainSignals): EISnapshot {
+  const { focus, recovery, clarity, regulation, support, momentum, fff } = deriveSignals(input);
+  const score = Math.round((focus + recovery + clarity + regulation + support + momentum) / 6);
+  return { score, focusEfficiency: focus, recoveryLatency: recovery, decisionClarity: clarity,
+    emotionRegulation: regulation, supportUtilization: support, strategicMomentum: momentum,
+    state: fff };
+}
+```
+
+---
+
+## Personalized Zen Mode (core)
+
+* **Goal**: frictionless, restorative focus block that adapts to user state + calendar context.
+* **Features**: distraction guard (mute in-app nudges), breathing overlay, minimal timer, ambient loop, optional haptics, one-tap “log completion” → updates EI.
+* **Calendar integration**: one click **“Block Zen 25/45”** → creates Google Calendar event “AuraVerse Zen Mode” with focus emoji; respects busy/free; auto-extensible.
+* **Config**: default sound off; user can pick breath ratio (4-4-4-4, 4-7-8); dark/mono UI.
+
+---
+
+## Google Calendar Integration (read/write + push)
+
+* **Scopes**: `https://www.googleapis.com/auth/calendar.events`, `.../calendar.readonly`, `openid email profile`
+* **OAuth**: NextAuth Google provider, store refresh token in `CalendarCred`.
+* **Workload inference** (read): pull next 7 days, compute packedness (% hours busy), peak blocks, evening load (after 7pm) to bias recovery recommendations & EI.
+* **Zen write**: create/update events for Zen Mode and AI Program sessions.
+* **Push notifications**: set **watch** channel on primary calendar; `auraverse-hooks` receives notifications at `/gcal/notify`, then `syncChanges(userId)`.
+
+`hooks/index.ts` (pseudo):
+
+```ts
+app.post('/gcal/notify', verifyGoogleHeader, async (req,res)=>{
+  const channelId = req.header('X-Goog-Channel-ID');
+  const resourceId = req.header('X-Goog-Resource-ID');
+  queue.enqueue('gcal.sync', { channelId, resourceId });
+  res.status(200).end();
+});
+```
+
+---
+
+## AI Assistance–based Coaching Programs
+
+* **Framing**: not prescriptive therapy; supportive, skills-based assistance (CBT/ACT–informed with disclaimers).
+* **Programs (examples)**:
+
+  * **FOUNDERS-FOCUS-7D** (attention & task initiation)
+  * **SLEEP-RESET-10D** (wind-down, stimulus control)
+  * **CALM-FOR-PITCH-48H** (micro-skills + visualizations)
+  * **CONFLICT-CONTAIN-3D** (de-escalation + scripts)
+* **Delivery**: small daily steps + check-ins → EI uplifts tracked weekly.
+
+**Prompt template** (server-side; safe tone):
+
+```
+System: You are a supportive mental wellness assistant for entrepreneurs. 
+Avoid diagnosis. Focus on skills, normalization, small wins. 
+Use founder-friendly language. Keep to 4–6 concise steps max.
+
+User state:
+- Avatar: {archetype}
+- FFF state: {state}
+- Key stressors: {stressors}
+- Calendar load next 48h: {load_summary}
+- Program: {program_code} day {n}
+
+Task: Return a brief session plan (title, 3 steps, 1 reflection question, 1 micro-celebration).
+```
+
+---
+
+## Frontend routes (Next.js)
+
+```
+/ (hero; tagline)
+/signup, /signin
+/onboarding (venture stage incl. Pre-IPO, IPO; stressors incl. Personal Life, Sales)
+/dashboard (Today card, Effectiveness Score, state, next step, Zen button, quick journal)
+/programs (browse; assign; continue)
+/zen (full-screen, minimal UI; start/extend; log)
+/journal (list, compose; client-side encryption; export)
+/insights (EI trends; sub-index tiles; calendar correlation)
+/billing (upgrade to $5/$99; invoices)
+/privacy-center (export/delete; consent timeline)
+```
+
+**UI vibe**: monochrome, high contrast, unobtrusive animation, keyboard-first. No gamified fireworks—just clean progress.
+
+---
+
+## API surface (NestJS)
+
+```
+POST   /auth/signup
+POST   /auth/signin
+GET    /me
+PUT    /profile
+POST   /diagnostic/submit           // returns EI snapshot + state
+GET    /ei/latest
+GET    /ei/trend?window=28d
+POST   /programs/assign             // {programCode}
+POST   /programs/step/complete
+POST   /zen/start                   // returns eventId if calendar write allowed
+POST   /zen/extend
+POST   /zen/complete
+POST   /journal                     // bodyCipher (Uint8)
+GET    /journal
+POST   /billing/checkout            // Stripe session
+POST   /billing/webhook             // in hooks service
+GET    /calendar/connect            // OAuth start
+GET    /calendar/callback           // OAuth finish
+POST   /calendar/watch              // start push channel
+POST   /calendar/unwatch
+```
+
+**Validation**: Zod DTOs; rate-limit sensitive endpoints; JWT rotation.
+
+---
+
+## Onboarding logic
+
+* Capture: ventureStage (inc. Pre-IPO, IPO), stressors (add Personal Life, Sales), sleep, workload, timezone, avatar.
+* Immediately schedule **2 Zen sessions** into next 48h (if calendar connected); else suggest 2 time slots.
+* Assign default program: **FOUNDERS-FOCUS-7D** unless stressor indicates otherwise.
+
+---
+
+## Pricing & billing (Stripe)
+
+* Prices: `price_starter_5`, `price_pro_99`. Monthly only for MVP.
+* Gates:
+
+  * **Starter ($5)**: Journaling, Zen Mode, calendar block, EI compute weekly, 1 active program.
+  * **Pro ($99)**: All Starter + EI daily, insights correlation, multi-program, PDF weekly digest, advanced prompts.
+* **No corporate plans** anywhere in copy or logic.
+
+---
+
+## Security & privacy
+
+* Journal body = **client-side encrypted** (AES-GCM). Server stores `bodyCipher` only.
+* EI math & metadata stored server-side (non-content).
+* PII minimization; structured audit logs; consent ledger.
+* Crisis language filter → show helplines; never store crisis text beyond session.
+
+---
+
+## Test plan (Playwright + Pact)
+
+* **E2E**: sign up → onboarding → connect Google Calendar → start Zen → complete program step → journal encrypt/save → upgrade → see EI trend.
+* **Contract tests**: API DTOs with Pact.
+* **Load**: 200 rps on `/programs/step/complete` stable; EI compute p95 < 120ms.
+* **A11y**: WCAG 2.2 AA audit on core flows.
+
+---
+
+## Delivery sequence (10 working days)
+
+1. Day 1–2: Repos, deployments, DB schema, auth
+2. Day 3: Onboarding + Profile + Avatar
+3. Day 4: Diagnostic → EI compute v1
+4. Day 5: Dashboard + Insights (trend skeleton)
+5. Day 6: Zen Mode page + local timers
+6. Day 7: Google Calendar OAuth + create/read + push watch
+7. Day 8: Programs engine + first 3 programs + prompts
+8. Day 9: Journaling (client-side encryption) + Billing ($5/$99)
+9. Day 10: Privacy center, QA, seed data, demo mode
+
+---
+
+## Seed content (MVP)
+
+* **Archetypes**: Visionary, Operator, Rainmaker, Craftsman, Guardian, Explorer, Stabilizer, Catalyst (short, founder-friendly).
+* **Diagnostics**: 30 Qs spanning money/team/product/sales/investor/reputation + personal life.
+* **Programs**: 3 named above, day-by-day JSON.
+* **Therapeutic Practices**:
+
+  * CBT thought record, ACT defusion micro, WOOP, 4-7-8 breath, 5-4-3-2-1 grounding.
+  * Word “toolkit” never appears—label as “Practice”.
+
+---
+
+## “Vibe coding” scaffolds (snippets to move fast)
+
+**NextAuth Google (web)**
+
+```ts
+GoogleProvider({
+  clientId: process.env.GOOGLE_CLIENT_ID!,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+  authorization: { params: { access_type: "offline", prompt: "consent" } }
+})
+```
+
+**Create Zen block (API)**
+
+```ts
+const calendar = await getGoogleClient(userId);
+const slot = suggestNextZenSlot(user.tz, 25);
+const ev = await calendar.events.insert({
+  calendarId: 'primary',
+  requestBody: {
+    summary: 'AuraVerse Zen Mode',
+    start: { dateTime: slot.startISO },
+    end:   { dateTime: slot.endISO  },
+    reminders: { useDefault: false },
+    colorId: '8' // monochrome-friendly
+  }
+});
+return { eventId: ev.data.id, slot };
+```
+
+**Client-side journal encryption**
+
+```ts
+const key = await deriveKey(password, salt);
+const { cipher, iv } = await encryptAESGCM(key, new TextEncoder().encode(body));
+await api.post('/journal', { bodyCipher: Array.from(cipher), tags });
+```
+
+**EI trend chart (web)**
+
+* Single series line, no colors set (system default), time on x, EI on y, sub-tiles for sub-indices.
+
+---
+
+## Acceptance criteria (Medium MVP)
+
+* A founder can sign up, complete onboarding (with Pre-IPO/IPO & Personal Life/Sales options), run Zen, connect Google Calendar, follow an AI Assistance–based program step, create an encrypted journal entry, see an **Effectiveness Score** and **Effectiveness Index** trend, and upgrade to Pro.
+* Quiet, smooth UX; <2.5s LCP on 4G; API p95 <150ms on core routes.
+
+---
+
+If you want, I can turn this into:
+
+* a ready-to-paste **Replit project README**,
+* an **`.env.example`**,
+* and a **JSON seed kit** for archetypes, diagnostics, and programs.
