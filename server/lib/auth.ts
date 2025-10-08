@@ -68,7 +68,7 @@ export async function authenticateToken(req: AuthRequest, res: Response, next: N
   req.user = {
     id: user.id,
     email: user.email,
-    role: user.role
+    role: user.role || 'FOUNDER'
   };
 
   next();
@@ -87,7 +87,7 @@ export async function optionalAuth(req: AuthRequest, res: Response, next: NextFu
         req.user = {
           id: user.id,
           email: user.email,
-          role: user.role
+          role: user.role || 'FOUNDER'
         };
       }
     }
@@ -113,7 +113,7 @@ export async function requireSubscription(tier: 'STARTER' | 'PRO') {
     }
 
     // PRO tier check
-    if (tier === 'PRO' && subscription.priceCode === 'STARTER_5') {
+    if (tier === 'PRO' && subscription.planType === 'STARTER_5') {
       return res.status(402).json({ 
         message: 'Pro subscription required',
         currentTier: 'STARTER',

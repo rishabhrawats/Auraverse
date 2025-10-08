@@ -77,7 +77,8 @@ Focus on practical, evidence-based techniques. Be encouraging and founder-specif
       ],
     });
 
-    const result = JSON.parse(response.content[0].text);
+    const textContent = response.content[0];
+    const result = JSON.parse(textContent.type === 'text' ? textContent.text : '{}');
     
     return {
       title: result.title || 'Program Step',
@@ -88,7 +89,7 @@ Focus on practical, evidence-based techniques. Be encouraging and founder-specif
     };
   } catch (error) {
     console.error('Anthropic API error:', error);
-    throw new Error('Failed to generate program step with Anthropic: ' + error.message);
+    throw new Error('Failed to generate program step with Anthropic: ' + (error instanceof Error ? error.message : 'Unknown error'));
   }
 }
 
@@ -105,7 +106,8 @@ Be sensitive but thorough. Include crisis resources if needed.`,
       ],
     });
 
-    const result = JSON.parse(response.content[0].text);
+    const textContent = response.content[0];
+    const result = JSON.parse(textContent.type === 'text' ? textContent.text : '{"isCrisis": false, "confidence": 0}');
     
     if (result.isCrisis) {
       result.resources = [

@@ -88,7 +88,7 @@ Focus on practical, evidence-based techniques. Be encouraging and founder-specif
     };
   } catch (error) {
     console.error('OpenAI API error:', error);
-    throw new Error('Failed to generate program step: ' + error.message);
+    throw new Error('Failed to generate program step: ' + (error instanceof Error ? error.message : 'Unknown error'));
   }
 }
 
