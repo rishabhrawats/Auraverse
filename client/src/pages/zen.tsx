@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ZenTimer } from "@/components/zen/zen-timer";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { CheckCircle2, Clock } from "lucide-react";
 
 export default function ZenMode() {
   const [isActive, setIsActive] = useState(false);
@@ -17,6 +18,12 @@ export default function ZenMode() {
   
   const [, navigate] = useLocation();
   const { toast } = useToast();
+
+  // Fetch zen session history
+  const { data: zenSessions = [] } = useQuery<any[]>({
+    queryKey: ['/api/zen/sessions'],
+    enabled: !isActive, // Only fetch when not in active session
+  });
 
   // Start zen session mutation
   const startZenMutation = useMutation({
@@ -234,6 +241,41 @@ export default function ZenMode() {
               </>
             )}
           </Button>
+
+          {/* Session History */}
+          {zenSessions.length > 0 && (
+            <div className="mt-12 max-w-2xl mx-auto w-full">
+              <h3 className="text-xl font-semibold text-foreground mb-4">Recent Sessions</h3>
+              <div className="grid gap-3">
+                {zenSessions.slice(0, 5).map((session: any, index: number) => (
+                  <div
+                    key={session.id}
+                    className="bg-card border border-border rounded-lg p-4 flex items-center justify-between"
+                    data-testid={`text-zen-session-${index}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {session.completed ? (
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      ) : (
+                        <Clock className="w-5 h-5 text-yellow-500" />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {session.duration} min session
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(session.startedAt).toLocaleDateString()} • {session.breathingPattern || '4-7-8'} breathing
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {session.completed ? 'Completed' : 'Incomplete'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );

@@ -449,6 +449,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  apiRouter.get("/zen/sessions", requireAuth, async (req: any, res) => {
+    try {
+      const sessions = await storage.getRecentZenSessions(req.user.id, 10);
+      res.json(sessions);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Journal routes
   apiRouter.get("/journal", requireAuth, async (req: any, res) => {
     try {
