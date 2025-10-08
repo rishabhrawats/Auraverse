@@ -1,5 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
+import { useTier } from "@/hooks/use-tier";
+import { Crown } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: "fas fa-chart-line" },
@@ -24,6 +26,7 @@ interface SidebarProps {
 
 export function Sidebar({ user }: SidebarProps) {
   const [location] = useLocation();
+  const { tierName, tierPrice, tier } = useTier();
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar border-r border-sidebar-border flex flex-col z-50">
@@ -88,7 +91,10 @@ export function Sidebar({ user }: SidebarProps) {
             <p className="text-sm font-medium text-sidebar-foreground truncate" data-testid="user-name">
               {user?.name || "User"}
             </p>
-            <p className="text-xs text-sidebar-foreground/70">Pro Plan</p>
+            <div className="flex items-center gap-1 text-xs text-sidebar-foreground/70">
+              {tier === 'EXCLUSIVE_99' && <Crown className="w-3 h-3 text-yellow-500" />}
+              <span data-testid="user-tier">{tierName} Plan</span>
+            </div>
           </div>
           <button 
             className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-smooth"
