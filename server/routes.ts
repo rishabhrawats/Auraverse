@@ -8,13 +8,10 @@ import { generateProgramStep } from "./openai";
 import { generateProgramStepFallback, detectCrisisLanguage } from "./anthropic";
 import { createZenModeEvent, getCalendarWorkload, setupCalendarWatch } from "./googleCalendarClient";
 
-// Stripe setup
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
-}
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+// Stripe setup - Optional for now
+const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2023-10-16",
-});
+}) : null;
 
 // EI Computation Engine
 function computeEI(signals: {
@@ -404,6 +401,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Billing routes
   app.post("/api/billing/checkout", requireAuth, async (req: any, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ error: 'Billing service not configured' });
+      }
+      
       const { planType } = req.body;
       
       const prices = {
@@ -440,6 +441,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Stripe webhook handler
   app.post('/api/billing/webhook', async (req, res) => {
+    if (!stripe) {
+      return res.status(503).json({ error: 'Billing service not configured' });
+    }
+    
     const sig = req.headers['stripe-signature'];
     let event;
 
