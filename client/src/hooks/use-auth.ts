@@ -3,9 +3,15 @@ import { authService, type AuthUser } from '@/lib/auth';
 
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(authService.getCurrentUser());
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Wait for auth service to initialize
+    authService.waitForInit().then(() => {
+      setUser(authService.getCurrentUser());
+      setLoading(false);
+    });
+
     const unsubscribe = authService.onAuthStateChange((newUser) => {
       setUser(newUser);
       setLoading(false);

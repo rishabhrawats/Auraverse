@@ -6,8 +6,8 @@ import Stripe from "stripe";
 import { z } from "zod";
 import { storage } from "./storage";
 import { insertProfileSchema, insertJournalSchema } from "@shared/schema";
-import { generateProgramStep } from "./openai";
-import { generateProgramStepFallback, detectCrisisLanguage } from "./anthropic";
+import { generateProgramStep, generateOracleResponse } from "./openai";
+import { generateProgramStepFallback, detectCrisisLanguage, generateOracleResponseFallback } from "./anthropic";
 import { createZenModeEvent, getCalendarWorkload, setupCalendarWatch } from "./googleCalendarClient";
 import { setupOAuth } from "./lib/oauth";
 
@@ -624,24 +624,10 @@ Keep responses concise (2-3 paragraphs), supportive, and actionable.`;
       // Try OpenAI first, fallback to Anthropic
       let answer;
       try {
-        const openaiResponse = await generateProgramStep({
-          programName: 'AI Oracle',
-          dayNumber: 1,
-          totalDays: 1,
-          userContext: systemPrompt + '\n\nQuestion: ' + question,
-          eiState: eiContext?.state || 'REGULATED'
-        });
-        answer = openaiResponse.content || openaiResponse.step || 'I apologize, but I encountered an issue generating a response.';
+        answer = await generateOracleResponse(question, systemPrompt);
       } catch (openaiError) {
         // Fallback to Anthropic
-        const anthropicResponse = await generateProgramStepFallback({
-          programName: 'AI Oracle',
-          dayNumber: 1,
-          totalDays: 1,
-          userContext: systemPrompt + '\n\nQuestion: ' + question,
-          eiState: eiContext?.state || 'REGULATED'
-        });
-        answer = anthropicResponse.content || anthropicResponse.step || 'I apologize, but I encountered an issue generating a response.';
+        answer = await generateOracleResponseFallback(question, systemPrompt);
       }
 
       res.json({ answer });

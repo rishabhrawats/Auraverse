@@ -11,68 +11,118 @@ class AuthService {
   private currentUser: AuthUser | null = null;
   private authToken: string | null = null;
   private listeners: Array<(user: AuthUser | null) => void> = [];
+  private initPromise: Promise<void> | null = null;
 
   constructor() {
     // Check for existing session in localStorage
-    const storedToken = localStorage.getItem('aura_auth_token');
-    const storedUser = localStorage.getItem('aura_user');
+    const storedToken = localStorage.getItem('auth_token');
     
-    if (storedToken && storedUser) {
+    if (storedToken) {
       this.authToken = storedToken;
-      this.currentUser = JSON.parse(storedUser);
+      // Fetch user data from /api/me
+      this.initPromise = this.fetchCurrentUser();
+    } else {
+      this.initPromise = Promise.resolve();
+    }
+  }
+
+  private async fetchCurrentUser() {
+    try {
+      const response = await fetch('/api/me', {
+        headers: {
+          'Authorization': `Bearer ${this.authToken}`
+        }
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        this.currentUser = {
+          id: userData.id,
+          email: userData.email,
+          name: userData.name,
+          role: userData.role || 'FOUNDER'
+        };
+        this.notifyListeners();
+      } else {
+        // Invalid token, clear auth
+        this.signOut();
+      }
+    } catch (error) {
+      console.error('Failed to fetch user:', error);
+      this.signOut();
+    }
+  }
+
+  async waitForInit() {
+    if (this.initPromise) {
+      await this.initPromise;
     }
   }
 
   async signIn(email: string, password: string): Promise<AuthUser> {
-    // Mock authentication - in production this would call your auth API
-    const mockUser: AuthUser = {
-      id: 'user-1',
-      email: email,
-      name: email.split('@')[0],
-      role: 'FOUNDER'
-    };
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
 
-    const mockToken = `mock_token_${Date.now()}`;
+    if (!response.ok) {
+      throw new Error('Sign in failed');
+    }
+
+    const data = await response.json();
+    const { token, user } = data;
     
-    this.currentUser = mockUser;
-    this.authToken = mockToken;
+    this.authToken = token;
+    this.currentUser = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role || 'FOUNDER'
+    };
     
-    localStorage.setItem('aura_auth_token', mockToken);
-    localStorage.setItem('aura_user', JSON.stringify(mockUser));
+    localStorage.setItem('auth_token', token);
     
     this.notifyListeners();
     
-    return mockUser;
+    return this.currentUser;
   }
 
   async signUp(email: string, password: string, name: string): Promise<AuthUser> {
-    // Mock sign up - in production this would call your auth API
-    const mockUser: AuthUser = {
-      id: `user-${Date.now()}`,
-      email: email,
-      name: name,
-      role: 'FOUNDER'
-    };
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, fullName: name })
+    });
 
-    const mockToken = `mock_token_${Date.now()}`;
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Sign up failed');
+    }
+
+    const data = await response.json();
+    const { token, user } = data;
     
-    this.currentUser = mockUser;
-    this.authToken = mockToken;
+    this.authToken = token;
+    this.currentUser = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role || 'FOUNDER'
+    };
     
-    localStorage.setItem('aura_auth_token', mockToken);
-    localStorage.setItem('aura_user', JSON.stringify(mockUser));
+    localStorage.setItem('auth_token', token);
     
     this.notifyListeners();
     
-    return mockUser;
+    return this.currentUser;
   }
 
   signOut(): void {
     this.currentUser = null;
     this.authToken = null;
     
-    localStorage.removeItem('aura_auth_token');
-    localStorage.removeItem('aura_user');
+    localStorage.removeItem('auth_token');
     
     this.notifyListeners();
   }

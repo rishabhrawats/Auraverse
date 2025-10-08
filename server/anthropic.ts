@@ -93,6 +93,25 @@ Focus on practical, evidence-based techniques. Be encouraging and founder-specif
   }
 }
 
+export async function generateOracleResponseFallback(question: string, systemPrompt: string): Promise<string> {
+  try {
+    const response = await anthropic.messages.create({
+      model: DEFAULT_MODEL_STR, // "claude-sonnet-4-20250514"
+      max_tokens: 500,
+      system: systemPrompt,
+      messages: [
+        { role: 'user', content: question }
+      ],
+    });
+
+    const textContent = response.content[0];
+    return textContent.type === 'text' ? textContent.text : 'I apologize, but I encountered an issue generating a response.';
+  } catch (error) {
+    console.error('Anthropic Oracle error:', error);
+    throw new Error('Failed to generate Oracle response with Anthropic: ' + (error instanceof Error ? error.message : 'Unknown error'));
+  }
+}
+
 export async function detectCrisisLanguage(text: string): Promise<{ isCrisis: boolean; confidence: number; resources?: string[] }> {
   try {
     const response = await anthropic.messages.create({

@@ -92,6 +92,26 @@ Focus on practical, evidence-based techniques. Be encouraging and founder-specif
   }
 }
 
+export async function generateOracleResponse(question: string, systemPrompt: string): Promise<string> {
+  // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+  
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-5", // the newest OpenAI model is "gpt-5"
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: question }
+      ],
+      max_completion_tokens: 500,
+    });
+
+    return response.choices[0].message.content || 'I apologize, but I encountered an issue generating a response.';
+  } catch (error) {
+    console.error('OpenAI Oracle error:', error);
+    throw new Error('Failed to generate Oracle response: ' + (error instanceof Error ? error.message : 'Unknown error'));
+  }
+}
+
 export async function generateJournalSummary(encryptedContent: string, userConsent: boolean): Promise<string | null> {
   if (!userConsent) return null;
   
