@@ -99,10 +99,12 @@ export default function Onboarding() {
   };
 
   const handleNext = () => {
-    if (currentStep < 3) {
+    if (currentStep === 2) {
+      // After avatar selection, save data and redirect to signup
+      sessionStorage.setItem('onboarding_data', JSON.stringify(data));
+      navigate('/signup');
+    } else if (currentStep < 2) {
       setCurrentStep(currentStep + 1);
-    } else {
-      completeMutation.mutate(data);
     }
   };
 

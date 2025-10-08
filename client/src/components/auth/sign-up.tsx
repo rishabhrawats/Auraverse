@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { SiGoogle, SiLinkedin } from "react-icons/si";
 
 const signUpSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -35,20 +34,36 @@ export default function SignUp() {
   const onSubmit = async (data: SignUpFormData) => {
     setIsLoading(true);
     try {
+      // Get onboarding data from sessionStorage
+      const onboardingDataStr = sessionStorage.getItem('onboarding_data');
+      const onboardingData = onboardingDataStr ? JSON.parse(onboardingDataStr) : {};
+
+      // Register user
       const response = await apiRequest("POST", "/api/auth/register", data);
       const result = await response.json();
       
       if (!response.ok) {
-        throw new Error(result.message || "Registration failed");
+        throw new Error(result.error || "Registration failed");
       }
 
       localStorage.setItem("auth_token", result.token);
+
+      // Complete onboarding with stored data
+      if (Object.keys(onboardingData).length > 0) {
+        await apiRequest("POST", "/api/onboarding/complete", {
+          ...onboardingData,
+          consent: true,
+          timezone: onboardingData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+        });
+        sessionStorage.removeItem('onboarding_data');
+      }
+
       toast({
         title: "Welcome to AuraVerse!",
         description: "Your account has been created successfully.",
       });
       
-      window.location.href = "/onboarding";
+      window.location.href = "/dashboard";
     } catch (error) {
       toast({
         title: "Registration Failed",
@@ -70,41 +85,6 @@ export default function SignUp() {
           <p className="text-muted-foreground mt-2" data-testid="text-signup-subtitle">
             Create your account
           </p>
-        </div>
-
-        <div className="space-y-4">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={() => window.location.href = '/api/auth/google'}
-            data-testid="button-google-signup"
-          >
-            <SiGoogle className="mr-2 h-5 w-5" />
-            Continue with Google
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={() => window.location.href = '/api/auth/linkedin'}
-            data-testid="button-linkedin-signup"
-          >
-            <SiLinkedin className="mr-2 h-5 w-5" />
-            Continue with LinkedIn
-          </Button>
-        </div>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with email
-            </span>
-          </div>
         </div>
 
         <Form {...form}>
@@ -182,7 +162,7 @@ export default function SignUp() {
           <Button
             variant="link"
             className="p-0 h-auto"
-            onClick={() => setLocation("/")}
+            onClick={() => setLocation("/signin")}
             data-testid="link-signin"
           >
             Sign in

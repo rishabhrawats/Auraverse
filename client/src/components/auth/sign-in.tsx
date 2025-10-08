@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { SiGoogle, SiLinkedin } from "react-icons/si";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -68,41 +67,6 @@ export default function SignIn() {
           <p className="text-muted-foreground mt-2" data-testid="text-signin-subtitle">
             Sign in to your account
           </p>
-        </div>
-
-        <div className="space-y-4">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={() => window.location.href = '/api/auth/google'}
-            data-testid="button-google-signin"
-          >
-            <SiGoogle className="mr-2 h-5 w-5" />
-            Continue with Google
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={() => window.location.href = '/api/auth/linkedin'}
-            data-testid="button-linkedin-signin"
-          >
-            <SiLinkedin className="mr-2 h-5 w-5" />
-            Continue with LinkedIn
-          </Button>
-        </div>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with email
-            </span>
-          </div>
         </div>
 
         <Form {...form}>

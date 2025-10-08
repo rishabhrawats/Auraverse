@@ -8,6 +8,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 
 // Pages
+import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Onboarding from "@/pages/onboarding";
 import Programs from "@/pages/programs";
@@ -48,9 +49,11 @@ function UnauthenticatedApp() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Switch>
+        <Route path="/" component={Landing} />
+        <Route path="/onboarding" component={Onboarding} />
         <Route path="/signup" component={SignUp} />
-        <Route path="/" component={SignIn} />
-        <Route component={SignIn} />
+        <Route path="/signin" component={SignIn} />
+        <Route component={Landing} />
       </Switch>
     </div>
   );
