@@ -14,6 +14,7 @@ import Onboarding from "@/pages/onboarding";
 import Programs from "@/pages/programs";
 import ZenMode from "@/pages/zen";
 import Journal from "@/pages/journal";
+import Oracle from "@/pages/oracle";
 import Insights from "@/pages/insights";
 import Billing from "@/pages/billing";
 import Privacy from "@/pages/privacy";
@@ -35,6 +36,7 @@ function AuthenticatedApp() {
           <Route path="/programs" component={Programs} />
           <Route path="/zen" component={ZenMode} />
           <Route path="/journal" component={Journal} />
+          <Route path="/oracle" component={Oracle} />
           <Route path="/insights" component={Insights} />
           <Route path="/billing" component={Billing} />
           <Route path="/privacy" component={Privacy} />

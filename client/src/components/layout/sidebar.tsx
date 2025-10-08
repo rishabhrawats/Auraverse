@@ -3,11 +3,11 @@ import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: "fas fa-chart-line" },
+  { name: "AI Oracle", href: "/oracle", icon: "fas fa-magic" },
   { name: "Programs", href: "/programs", icon: "fas fa-brain" },
   { name: "Zen Mode", href: "/zen", icon: "fas fa-spa" },
   { name: "Journal", href: "/journal", icon: "fas fa-lock" },
   { name: "Insights", href: "/insights", icon: "fas fa-chart-bar" },
-  { name: "Calendar", href: "/calendar", icon: "fab fa-google" },
 ];
 
 const secondaryNavigation = [

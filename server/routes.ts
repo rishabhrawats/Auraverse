@@ -595,6 +595,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ received: true });
   });
 
+  // AI Oracle routes
+  apiRouter.post("/oracle/ask", requireAuth, async (req: any, res) => {
+    try {
+      const { question, eiContext } = req.body;
+      
+      if (!question) {
+        return res.status(400).json({ error: 'Question is required' });
+      }
+
+      // Build context-aware prompt
+      const systemPrompt = `You are an AI mental wellness advisor for entrepreneurs and founders. 
+Provide empathetic, actionable advice for mental health, decision-making, and founder challenges.
+
+User's current state: ${eiContext?.state || 'REGULATED'}
+EI Score: ${eiContext?.score || 'N/A'}
+
+Focus on:
+- Practical mental wellness strategies
+- Evidence-based approaches
+- Founder-specific challenges
+- Work-life balance
+- Stress management
+- Decision-making frameworks
+
+Keep responses concise (2-3 paragraphs), supportive, and actionable.`;
+
+      // Try OpenAI first, fallback to Anthropic
+      let answer;
+      try {
+        const openaiResponse = await generateProgramStep({
+          programName: 'AI Oracle',
+          dayNumber: 1,
+          totalDays: 1,
+          userContext: systemPrompt + '\n\nQuestion: ' + question,
+          eiState: eiContext?.state || 'REGULATED'
+        });
+        answer = openaiResponse.content || openaiResponse.step || 'I apologize, but I encountered an issue generating a response.';
+      } catch (openaiError) {
+        // Fallback to Anthropic
+        const anthropicResponse = await generateProgramStepFallback({
+          programName: 'AI Oracle',
+          dayNumber: 1,
+          totalDays: 1,
+          userContext: systemPrompt + '\n\nQuestion: ' + question,
+          eiState: eiContext?.state || 'REGULATED'
+        });
+        answer = anthropicResponse.content || anthropicResponse.step || 'I apologize, but I encountered an issue generating a response.';
+      }
+
+      res.json({ answer });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Privacy & data management routes
   apiRouter.post("/privacy/export", requireAuth, async (req: any, res) => {
     try {
