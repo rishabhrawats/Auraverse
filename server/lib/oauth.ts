@@ -82,31 +82,33 @@ export function setupOAuth(app: Express) {
     }));
   }
 
-  // Google OAuth routes
-  app.get('/api/auth/google',
-    passport.authenticate('google', { session: false })
-  );
+  // Google OAuth routes (only register if credentials exist)
+  if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
+    app.get('/api/auth/google',
+      passport.authenticate('google', { session: false })
+    );
 
-  app.get('/api/auth/google/callback',
-    passport.authenticate('google', { session: false, failureRedirect: '/signup?error=oauth_failed' }),
-    (req: any, res) => {
-      const { user, token } = req.user;
-      // Redirect to frontend with token
-      res.redirect(`/signup?token=${token}&oauth=success`);
-    }
-  );
+    app.get('/api/auth/google/callback',
+      passport.authenticate('google', { session: false, failureRedirect: '/signup?error=oauth_failed' }),
+      (req: any, res) => {
+        const { user, token } = req.user;
+        res.redirect(`/signup?token=${token}&oauth=success`);
+      }
+    );
+  }
 
-  // LinkedIn OAuth routes
-  app.get('/api/auth/linkedin',
-    passport.authenticate('linkedin', { session: false })
-  );
+  // LinkedIn OAuth routes (only register if credentials exist)
+  if (LINKEDIN_CLIENT_ID && LINKEDIN_CLIENT_SECRET) {
+    app.get('/api/auth/linkedin',
+      passport.authenticate('linkedin', { session: false })
+    );
 
-  app.get('/api/auth/linkedin/callback',
-    passport.authenticate('linkedin', { session: false, failureRedirect: '/signup?error=oauth_failed' }),
-    (req: any, res) => {
-      const { user, token } = req.user;
-      // Redirect to frontend with token
-      res.redirect(`/signup?token=${token}&oauth=success`);
-    }
-  );
+    app.get('/api/auth/linkedin/callback',
+      passport.authenticate('linkedin', { session: false, failureRedirect: '/signup?error=oauth_failed' }),
+      (req: any, res) => {
+        const { user, token } = req.user;
+        res.redirect(`/signup?token=${token}&oauth=success`);
+      }
+    );
+  }
 }
