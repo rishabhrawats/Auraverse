@@ -11,7 +11,7 @@ export const avatarTypeEnum = pgEnum('avatar_type', ['VISIONARY', 'OPERATOR', 'R
 export const regStateEnum = pgEnum('reg_state', ['FIGHT', 'FLIGHT', 'FREEZE', 'REGULATED']);
 export const programStatusEnum = pgEnum('program_status', ['ACTIVE', 'PAUSED', 'DONE']);
 export const subscriptionStatusEnum = pgEnum('subscription_status', ['ACTIVE', 'CANCELED', 'INCOMPLETE', 'PAST_DUE']);
-export const planTypeEnum = pgEnum('plan_type', ['STARTER_5', 'PRO_99']);
+export const planTypeEnum = pgEnum('plan_type', ['BASIC_5', 'MEDIUM_29', 'EXCLUSIVE_99']);
 
 // Core tables
 export const users = pgTable("users", {
