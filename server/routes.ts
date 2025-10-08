@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import { Router } from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { z } from "zod";
@@ -53,26 +54,121 @@ function computeEI(signals: {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Create API router
+  const apiRouter = Router();
+  
+  // Import auth functions
+  const { generateToken, verifyToken, hashPassword, comparePassword } = await import('./lib/auth');
+  
+  // Authentication routes
+  apiRouter.post("/auth/register", async (req, res) => {
+    try {
+      const { email, password, fullName } = req.body;
+      
+      if (!email || !password || !fullName) {
+        return res.status(400).json({ error: 'Email, password, and full name are required' });
+      }
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ error: 'User already exists' });
+      }
+      
+      // Hash password and create user
+      const passwordHash = await hashPassword(password);
+      const user = await storage.createUser({
+        email,
+        passwordHash,
+        name: fullName,
+        role: 'FOUNDER'
+      });
+      
+      // Generate JWT token
+      const token = generateToken(user.id, user.email, user.role || 'FOUNDER');
+      
+      res.json({ 
+        token, 
+        user: { 
+          id: user.id, 
+          email: user.email, 
+          name: user.name,
+          role: user.role
+        } 
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+  apiRouter.post("/auth/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+      }
+      
+      // Find user
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      
+      // Verify password
+      const isValid = await comparePassword(password, user.passwordHash);
+      if (!isValid) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      
+      // Generate JWT token
+      const token = generateToken(user.id, user.email, user.role || 'FOUNDER');
+      
+      res.json({ 
+        token,
+        user: { 
+          id: user.id, 
+          email: user.email, 
+          name: user.name,
+          role: user.role
+        } 
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
   // Authentication middleware
-  const requireAuth = (req: any, res: any, next: any) => {
-    // Placeholder - would implement proper NextAuth integration
+  const requireAuth = async (req: any, res: any, next: any) => {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (!token) {
       return res.status(401).json({ error: 'Authentication required' });
     }
     
-    // Mock user for development
-    req.user = { 
-      id: 'user-1', 
-      email: 'founder@example.com', 
-      name: 'John Doe',
-      role: 'FOUNDER'
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      return res.status(403).json({ error: 'Invalid token' });
+    }
+    
+    // Verify user still exists
+    const user = await storage.getUser(decoded.userId);
+    if (!user) {
+      return res.status(403).json({ error: 'User not found' });
+    }
+    
+    req.user = {
+      id: user.id,
+      email: user.email,
+      role: user.role || 'FOUNDER',
+      name: user.name
     };
     next();
   };
 
   // User profile routes
-  app.get("/api/me", requireAuth, async (req: any, res) => {
+  apiRouter.get("/me", requireAuth, async (req: any, res) => {
     try {
       const user = await storage.getUser(req.user.id);
       const profile = await storage.getProfile(req.user.id);
@@ -88,7 +184,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/profile", requireAuth, async (req: any, res) => {
+  apiRouter.put("/profile", requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertProfileSchema.parse({
         ...req.body,
@@ -103,7 +199,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Onboarding route
-  app.post("/api/onboarding/complete", requireAuth, async (req: any, res) => {
+  apiRouter.post("/onboarding/complete", requireAuth, async (req: any, res) => {
     try {
       const onboardingSchema = z.object({
         ventureStage: z.enum(['IDEA', 'PRESEED', 'SEED', 'SERIES_A', 'GROWTH', 'PRE_IPO', 'IPO']),
@@ -158,7 +254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // EI computation routes
-  app.post("/api/diagnostic/submit", requireAuth, async (req: any, res) => {
+  apiRouter.post("/diagnostic/submit", requireAuth, async (req: any, res) => {
     try {
       const diagnosticData = req.body;
       
@@ -176,7 +272,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/ei/latest", requireAuth, async (req: any, res) => {
+  apiRouter.get("/ei/latest", requireAuth, async (req: any, res) => {
     try {
       const snapshot = await storage.getLatestEISnapshot(req.user.id);
       res.json(snapshot);
@@ -185,7 +281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/ei/trend", requireAuth, async (req: any, res) => {
+  apiRouter.get("/ei/trend", requireAuth, async (req: any, res) => {
     try {
       const days = parseInt(req.query.window as string) || 28;
       const snapshots = await storage.getEISnapshots(req.user.id, days);
@@ -196,7 +292,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Program management routes
-  app.get("/api/programs", requireAuth, async (req: any, res) => {
+  apiRouter.get("/programs", requireAuth, async (req: any, res) => {
     try {
       const programs = await storage.getUserPrograms(req.user.id);
       res.json(programs);
@@ -205,7 +301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/programs/assign", requireAuth, async (req: any, res) => {
+  apiRouter.post("/programs/assign", requireAuth, async (req: any, res) => {
     try {
       const { programCode } = req.body;
       
@@ -231,7 +327,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/programs/step/complete", requireAuth, async (req: any, res) => {
+  apiRouter.post("/programs/step/complete", requireAuth, async (req: any, res) => {
     try {
       const { assignmentId, stepId } = req.body;
       
@@ -305,7 +401,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Zen Mode routes
-  app.post("/api/zen/start", requireAuth, async (req: any, res) => {
+  apiRouter.post("/zen/start", requireAuth, async (req: any, res) => {
     try {
       const { duration = 25 } = req.body;
       
@@ -330,7 +426,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/zen/complete", requireAuth, async (req: any, res) => {
+  apiRouter.post("/zen/complete", requireAuth, async (req: any, res) => {
     try {
       const { sessionId } = req.body;
       
@@ -346,7 +442,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Journal routes
-  app.get("/api/journal", requireAuth, async (req: any, res) => {
+  apiRouter.get("/journal", requireAuth, async (req: any, res) => {
     try {
       const journals = await storage.getJournals(req.user.id);
       res.json(journals);
@@ -355,7 +451,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/journal", requireAuth, async (req: any, res) => {
+  apiRouter.post("/journal", requireAuth, async (req: any, res) => {
     try {
       // Check for crisis language before storing
       const { bodyCipher, title, tags } = req.body;
@@ -377,7 +473,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Calendar integration routes
-  app.get("/api/calendar/workload", requireAuth, async (req: any, res) => {
+  apiRouter.get("/calendar/workload", requireAuth, async (req: any, res) => {
     try {
       const days = parseInt(req.query.days as string) || 7;
       const workload = await getCalendarWorkload(req.user.id, days);
@@ -388,7 +484,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Insights routes
-  app.get("/api/insights/correlation", requireAuth, async (req: any, res) => {
+  apiRouter.get("/insights/correlation", requireAuth, async (req: any, res) => {
     try {
       const days = parseInt(req.query.days as string) || 28;
       const correlation = await storage.getCalendarWorkloadCorrelation(req.user.id, days);
@@ -399,7 +495,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Billing routes
-  app.post("/api/billing/checkout", requireAuth, async (req: any, res) => {
+  apiRouter.post("/billing/checkout", requireAuth, async (req: any, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ error: 'Billing service not configured' });
@@ -492,7 +588,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Privacy & data management routes
-  app.post("/api/privacy/export", requireAuth, async (req: any, res) => {
+  apiRouter.post("/privacy/export", requireAuth, async (req: any, res) => {
     try {
       const analytics = await storage.getUserAnalytics(req.user.id);
       
@@ -511,6 +607,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Mount API router
+  app.use('/api', apiRouter);
+  
   const httpServer = createServer(app);
   return httpServer;
 }
