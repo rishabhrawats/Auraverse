@@ -312,6 +312,20 @@ export class DatabaseStorage implements IStorage {
     return session;
   }
 
+  // Media analysis sessions
+  async getMediaAnalysisSessions(userId: string, limit: number = 10): Promise<MediaAnalysisSession[]> {
+    return await db.select()
+      .from(mediaAnalysisSessions)
+      .where(eq(mediaAnalysisSessions.userId, userId))
+      .orderBy(desc(mediaAnalysisSessions.createdAt))
+      .limit(limit);
+  }
+
+  async createMediaAnalysisSession(insertSession: InsertMediaAnalysisSession): Promise<MediaAnalysisSession> {
+    const [session] = await db.insert(mediaAnalysisSessions).values(insertSession).returning();
+    return session;
+  }
+
   // Analytics & insights
   async getCalendarWorkloadCorrelation(userId: string, days: number = 28): Promise<any> {
     // This would implement complex correlation analysis between EI scores and calendar data

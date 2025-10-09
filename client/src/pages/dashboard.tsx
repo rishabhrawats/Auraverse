@@ -113,7 +113,7 @@ export default function Dashboard() {
   };
 
   const handleStartZen = () => {
-    startZenMutation.mutate();
+    startZenMutation.mutate(25);
   };
 
   const handleSaveJournal = (bodyCipher: string, title: string, tags: string[]) => {
