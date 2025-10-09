@@ -1,7 +1,8 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { useTier } from "@/hooks/use-tier";
-import { Crown } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { Crown, LogOut } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: "fas fa-chart-line" },
@@ -27,6 +28,7 @@ interface SidebarProps {
 export function Sidebar({ user }: SidebarProps) {
   const [location] = useLocation();
   const { tierName, tierPrice, tier } = useTier();
+  const { signOut } = useAuth();
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar border-r border-sidebar-border flex flex-col z-50">
@@ -97,10 +99,12 @@ export function Sidebar({ user }: SidebarProps) {
             </div>
           </div>
           <button 
-            className="text-sidebar-foreground/70 hover:text-sidebar-foreground transition-smooth"
-            data-testid="button-settings"
+            onClick={signOut}
+            className="text-sidebar-foreground/70 hover:text-red-500 transition-smooth"
+            data-testid="button-logout"
+            title="Sign Out"
           >
-            <i className="fas fa-cog"></i>
+            <LogOut className="w-4 h-4" />
           </button>
         </div>
       </div>
