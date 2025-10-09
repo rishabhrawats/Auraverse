@@ -135,6 +135,26 @@ export const programSteps = pgTable("program_steps", {
   updatedAt: timestamp("updated_at").default(sql`now()`),
 });
 
+export const mediaAnalysisSessions = pgTable("media_analysis_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  mediaType: text("media_type").notNull(), // 'VOICE', 'VIDEO', 'BOTH'
+  duration: integer("duration").notNull(), // in seconds
+  analysisResult: jsonb("analysis_result").$type<{
+    vocalStressLevel?: number; // 0-100
+    emotionalState?: string; // detected emotion
+    speechPace?: string; // 'SLOW', 'NORMAL', 'RAPID'
+    pauseFrequency?: string; // 'LOW', 'MEDIUM', 'HIGH'
+    facialExpression?: string; // if video
+    bodyLanguage?: string; // if video
+    overallWellbeing?: number; // 0-100
+    recommendations?: string[];
+    rawAnalysis?: string;
+  }>().default({}),
+  recordingUrl: text("recording_url"),
+  createdAt: timestamp("created_at").default(sql`now()`),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles, {
@@ -150,6 +170,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   }),
   subscriptions: many(subscriptions),
   zenSessions: many(zenSessions),
+  mediaAnalysisSessions: many(mediaAnalysisSessions),
 }));
 
 export const profilesRelations = relations(profiles, ({ one }) => ({
@@ -209,6 +230,13 @@ export const zenSessionsRelations = relations(zenSessions, ({ one }) => ({
   }),
 }));
 
+export const mediaAnalysisSessionsRelations = relations(mediaAnalysisSessions, ({ one }) => ({
+  user: one(users, {
+    fields: [mediaAnalysisSessions.userId],
+    references: [users.id],
+  }),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -243,6 +271,11 @@ export const insertZenSessionSchema = createInsertSchema(zenSessions).omit({
   createdAt: true,
 });
 
+export const insertMediaAnalysisSessionSchema = createInsertSchema(mediaAnalysisSessions).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -259,3 +292,5 @@ export type Subscription = typeof subscriptions.$inferSelect;
 export type ZenSession = typeof zenSessions.$inferSelect;
 export type InsertZenSession = z.infer<typeof insertZenSessionSchema>;
 export type ProgramStep = typeof programSteps.$inferSelect;
+export type MediaAnalysisSession = typeof mediaAnalysisSessions.$inferSelect;
+export type InsertMediaAnalysisSession = z.infer<typeof insertMediaAnalysisSessionSchema>;

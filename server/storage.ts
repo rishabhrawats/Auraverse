@@ -1,10 +1,11 @@
 import { 
   users, profiles, journals, eiSnapshots, programAssignments, 
-  calendarCreds, subscriptions, zenSessions, programSteps,
+  calendarCreds, subscriptions, zenSessions, programSteps, mediaAnalysisSessions,
   type User, type InsertUser, type Profile, type InsertProfile,
   type Journal, type InsertJournal, type EISnapshot, type InsertEISnapshot,
   type ProgramAssignment, type InsertProgramAssignment, type CalendarCred,
-  type Subscription, type ZenSession, type InsertZenSession, type ProgramStep
+  type Subscription, type ZenSession, type InsertZenSession, type ProgramStep,
+  type MediaAnalysisSession, type InsertMediaAnalysisSession
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
@@ -58,6 +59,10 @@ export interface IStorage {
   getRecentZenSessions(userId: string, limit?: number): Promise<ZenSession[]>;
   createZenSession(session: InsertZenSession): Promise<ZenSession>;
   updateZenSession(id: string, updates: Partial<ZenSession>): Promise<ZenSession>;
+  
+  // Media analysis sessions
+  getMediaAnalysisSessions(userId: string, limit?: number): Promise<MediaAnalysisSession[]>;
+  createMediaAnalysisSession(session: InsertMediaAnalysisSession): Promise<MediaAnalysisSession>;
   
   // Analytics & insights
   getCalendarWorkloadCorrelation(userId: string, days?: number): Promise<any>;
