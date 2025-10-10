@@ -697,6 +697,17 @@ Keep responses concise (2-3 paragraphs), supportive, and actionable.`;
     }
   });
 
+  // Wearable device routes
+  apiRouter.get("/wearables", requireAuth, async (req: any, res) => {
+    try {
+      // Placeholder - return empty array for now
+      // In production, this would fetch user's wearable connections
+      res.json([]);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Privacy & data management routes
   apiRouter.post("/privacy/export", requireAuth, async (req: any, res) => {
     try {

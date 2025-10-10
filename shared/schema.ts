@@ -155,6 +155,32 @@ export const mediaAnalysisSessions = pgTable("media_analysis_sessions", {
   createdAt: timestamp("created_at").default(sql`now()`),
 });
 
+export const wearableConnections = pgTable("wearable_connections", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  deviceType: text("device_type").notNull(), // 'APPLE_WATCH', 'FITBIT', 'OURA', 'WHOOP', 'GARMIN'
+  deviceName: text("device_name"),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  tokenExpiry: timestamp("token_expiry"),
+  isActive: boolean("is_active").default(true),
+  lastSyncAt: timestamp("last_sync_at"),
+  createdAt: timestamp("created_at").default(sql`now()`),
+  updatedAt: timestamp("updated_at").default(sql`now()`),
+});
+
+export const wearableData = pgTable("wearable_data", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  connectionId: varchar("connection_id").notNull(),
+  userId: varchar("user_id").notNull(),
+  dataType: text("data_type").notNull(), // 'HEART_RATE', 'SLEEP', 'ACTIVITY', 'HRV', 'STEPS', 'CALORIES'
+  value: real("value").notNull(),
+  unit: text("unit"), // 'bpm', 'hours', 'steps', 'kcal', 'ms'
+  metadata: jsonb("metadata").$type<Record<string, any>>().default({}),
+  recordedAt: timestamp("recorded_at").notNull(),
+  createdAt: timestamp("created_at").default(sql`now()`),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles, {
@@ -171,6 +197,8 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   subscriptions: many(subscriptions),
   zenSessions: many(zenSessions),
   mediaAnalysisSessions: many(mediaAnalysisSessions),
+  wearableConnections: many(wearableConnections),
+  wearableData: many(wearableData),
 }));
 
 export const profilesRelations = relations(profiles, ({ one }) => ({
@@ -237,6 +265,25 @@ export const mediaAnalysisSessionsRelations = relations(mediaAnalysisSessions, (
   }),
 }));
 
+export const wearableConnectionsRelations = relations(wearableConnections, ({ one, many }) => ({
+  user: one(users, {
+    fields: [wearableConnections.userId],
+    references: [users.id],
+  }),
+  data: many(wearableData),
+}));
+
+export const wearableDataRelations = relations(wearableData, ({ one }) => ({
+  user: one(users, {
+    fields: [wearableData.userId],
+    references: [users.id],
+  }),
+  connection: one(wearableConnections, {
+    fields: [wearableData.connectionId],
+    references: [wearableConnections.id],
+  }),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -276,6 +323,17 @@ export const insertMediaAnalysisSessionSchema = createInsertSchema(mediaAnalysis
   createdAt: true,
 });
 
+export const insertWearableConnectionSchema = createInsertSchema(wearableConnections).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertWearableDataSchema = createInsertSchema(wearableData).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -294,3 +352,7 @@ export type InsertZenSession = z.infer<typeof insertZenSessionSchema>;
 export type ProgramStep = typeof programSteps.$inferSelect;
 export type MediaAnalysisSession = typeof mediaAnalysisSessions.$inferSelect;
 export type InsertMediaAnalysisSession = z.infer<typeof insertMediaAnalysisSessionSchema>;
+export type WearableConnection = typeof wearableConnections.$inferSelect;
+export type InsertWearableConnection = z.infer<typeof insertWearableConnectionSchema>;
+export type WearableData = typeof wearableData.$inferSelect;
+export type InsertWearableData = z.infer<typeof insertWearableDataSchema>;

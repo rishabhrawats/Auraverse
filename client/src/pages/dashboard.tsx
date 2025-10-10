@@ -6,6 +6,7 @@ import { TodayCard } from "@/components/dashboard/today-card";
 import { EIScoreCard } from "@/components/dashboard/ei-score-card";
 import { SubIndices } from "@/components/dashboard/sub-indices";
 import { DashboardTour } from "@/components/dashboard/dashboard-tour";
+import { WearableCard } from "@/components/dashboard/wearable-card";
 import { EncryptedEditor } from "@/components/journal/encrypted-editor";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -317,6 +318,9 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         )}
+
+        {/* Wearable Devices */}
+        <WearableCard />
       </div>
 
       {/* Dashboard Tour for First-Time Users */}
