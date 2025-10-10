@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { useAuth } from '@/lib/auth';
+import { useAuth } from '@/hooks/use-auth';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +21,7 @@ export default function MediaAnalysis() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const durationRef = useRef<number>(0);
 
   const { data: sessions = [], isLoading } = useQuery<MediaAnalysisSession[]>({
     queryKey: ['/api/media'],
@@ -85,17 +86,20 @@ export default function MediaAnalysis() {
         // For now, just trigger analysis with duration
         await analyzeMutation.mutateAsync({
           mediaType,
-          duration: recordingDuration,
+          duration: durationRef.current,
         });
 
         setRecordingDuration(0);
+        durationRef.current = 0;
       };
 
       mediaRecorder.start();
       setIsRecording(true);
+      durationRef.current = 0;
 
       timerRef.current = setInterval(() => {
-        setRecordingDuration(prev => prev + 1);
+        durationRef.current += 1;
+        setRecordingDuration(durationRef.current);
       }, 1000);
 
     } catch (error: any) {
