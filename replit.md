@@ -39,6 +39,9 @@ Preferred communication style: Simple, everyday language.
   - `zenSessions` - Meditation/focus session logs
   - `calendarCreds` - Google Calendar OAuth credentials
   - `subscriptions` - Payment plan management (Starter $5, Pro $99)
+  - `mediaAnalysisSessions` - Voice/video recording analysis sessions with AI insights
+  - `wearableConnections` - Connected wearable devices (Apple Watch, Fitbit, Oura, WHOOP, Garmin)
+  - `wearableData` - Health metrics from wearable devices (heart rate, HRV, sleep, steps, calories)
 
 ### Core Features & Algorithms
 
@@ -59,6 +62,27 @@ Preferred communication style: Simple, everyday language.
 - Crisis language detection for safety protocols
 - Located in `/server/openai.ts` and `/server/anthropic.ts`
 
+**Voice/Video Mental Health Analysis**:
+- Real-time recording interface supporting Voice, Video, or Both modes
+- Browser MediaRecorder API with live preview and duration tracking (using refs to avoid closure issues)
+- AI analysis of vocal stress, emotional state, speech pace, facial expressions, body language
+- Session history with timestamps and AI-generated wellness recommendations
+- Located in `/client/src/pages/media-analysis.tsx`
+
+**Wearable Device Integration**:
+- Support for 5 major wearable platforms: Apple Watch, Fitbit, Oura, WHOOP, Garmin
+- Database schema for device connections and health metrics (heart rate, HRV, sleep, steps, calories)
+- Dashboard card showing connection status and device management
+- OAuth token storage for secure device authentication
+- Located in `/client/src/components/dashboard/wearable-card.tsx`
+
+**Interactive Dashboard Tour**:
+- First-time user onboarding with 7-step guided tour
+- Element highlighting, smooth scrolling, and mobile responsiveness
+- Data-aware start (waits for dashboard data to load before showing)
+- localStorage flag to show tour only once
+- Located in `/client/src/components/dashboard/dashboard-tour.tsx`
+
 ### Authentication & Authorization
 - JWT tokens stored in localStorage with 7-day expiration
 - Token-based middleware for protected routes
@@ -77,6 +101,8 @@ Preferred communication style: Simple, everyday language.
 - `/api/billing/*` - Stripe checkout and subscription management
 - `/api/calendar/*` - Google Calendar integration endpoints
 - `/api/privacy/*` - Data export and privacy controls
+- `/api/media/*` - Voice/video recording analysis (GET sessions, POST analyze)
+- `/api/wearables/*` - Wearable device connection management
 
 ## External Dependencies
 
