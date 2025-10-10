@@ -19,7 +19,7 @@ export function EIScoreCard({
   const strokeDashoffset = 440 - (440 * score) / 100; // 440 is the circumference
 
   return (
-    <Card className="bg-card border-border" data-testid="card-ei-score">
+    <Card className="bg-card border-border purple-glow-hover" data-testid="card-ei-score">
       <CardContent className="p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4" data-testid="text-ei-title">
           Effectiveness Score

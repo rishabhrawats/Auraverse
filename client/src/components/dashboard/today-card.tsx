@@ -41,7 +41,7 @@ export function TodayCard({
   };
 
   return (
-    <Card className="lg:col-span-2 bg-card border-border" data-testid="card-today">
+    <Card className="lg:col-span-2 bg-card border-border purple-glow-hover" data-testid="card-today">
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-6">
           <div>
