@@ -44,9 +44,9 @@ export function Sidebar({ user }: SidebarProps) {
           const isActive = location === item.href || location.startsWith(item.href + "/");
           return (
             <Link key={item.name} href={item.href}>
-              <a
+              <div
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-smooth",
+                  "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-smooth cursor-pointer",
                   isActive
                     ? "nav-active text-sidebar-foreground bg-sidebar-accent"
                     : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
@@ -55,7 +55,7 @@ export function Sidebar({ user }: SidebarProps) {
               >
                 <i className={`${item.icon} w-5 text-center`}></i>
                 <span>{item.name}</span>
-              </a>
+              </div>
             </Link>
           );
         })}
@@ -66,9 +66,9 @@ export function Sidebar({ user }: SidebarProps) {
           const isActive = location === item.href;
           return (
             <Link key={item.name} href={item.href}>
-              <a
+              <div
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-smooth",
+                  "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-smooth cursor-pointer",
                   isActive
                     ? "text-sidebar-foreground bg-sidebar-accent"
                     : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
@@ -77,7 +77,7 @@ export function Sidebar({ user }: SidebarProps) {
               >
                 <i className={`${item.icon} w-5 text-center`}></i>
                 <span>{item.name}</span>
-              </a>
+              </div>
             </Link>
           );
         })}
