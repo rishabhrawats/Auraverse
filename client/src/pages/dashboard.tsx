@@ -1,9 +1,11 @@
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Header } from "@/components/layout/header";
 import { TodayCard } from "@/components/dashboard/today-card";
 import { EIScoreCard } from "@/components/dashboard/ei-score-card";
 import { SubIndices } from "@/components/dashboard/sub-indices";
+import { DashboardTour } from "@/components/dashboard/dashboard-tour";
 import { EncryptedEditor } from "@/components/journal/encrypted-editor";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +18,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const [showTour, setShowTour] = useState(false);
 
   // Fetch dashboard data
   const { data: userProfile } = useQuery({
@@ -37,6 +40,14 @@ export default function Dashboard() {
     queryKey: ["/api/calendar/workload"],
     enabled: !!user,
   });
+
+  // Show tour only after dashboard data is loaded
+  useEffect(() => {
+    const tourCompleted = localStorage.getItem('dashboard_tour_completed');
+    if (!tourCompleted && user && latestEI && programs) {
+      setTimeout(() => setShowTour(true), 500);
+    }
+  }, [user, latestEI, programs]);
 
   // Mutations
   const completeStepMutation = useMutation({
@@ -307,6 +318,9 @@ export default function Dashboard() {
           </Card>
         )}
       </div>
+
+      {/* Dashboard Tour for First-Time Users */}
+      {showTour && <DashboardTour onComplete={() => setShowTour(false)} />}
     </>
   );
 }
