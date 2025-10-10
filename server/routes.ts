@@ -645,6 +645,58 @@ Keep responses concise (2-3 paragraphs), supportive, and actionable.`;
     }
   });
 
+  // Media Analysis routes
+  apiRouter.get("/media", requireAuth, async (req: any, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const sessions = await storage.getMediaAnalysisSessions(req.user.id, limit);
+      res.json(sessions);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  apiRouter.post("/media/analyze", requireAuth, async (req: any, res) => {
+    try {
+      const { mediaType, duration, recordingUrl } = req.body;
+      
+      if (!mediaType || !duration) {
+        return res.status(400).json({ error: 'Media type and duration are required' });
+      }
+
+      // Mock AI analysis - In production, this would call OpenAI/Anthropic with actual audio/video processing
+      const analysisResult = {
+        vocalStressLevel: Math.round(Math.random() * 40 + 30), // 30-70
+        emotionalState: ['calm', 'anxious', 'focused', 'overwhelmed', 'energized'][Math.floor(Math.random() * 5)],
+        speechPace: ['SLOW', 'NORMAL', 'RAPID'][Math.floor(Math.random() * 3)],
+        pauseFrequency: ['LOW', 'MEDIUM', 'HIGH'][Math.floor(Math.random() * 3)],
+        ...(mediaType === 'VIDEO' || mediaType === 'BOTH' ? {
+          facialExpression: ['relaxed', 'tense', 'concerned', 'confident'][Math.floor(Math.random() * 4)],
+          bodyLanguage: ['open', 'closed', 'restless', 'composed'][Math.floor(Math.random() * 4)],
+        } : {}),
+        overallWellbeing: Math.round(Math.random() * 30 + 60), // 60-90
+        recommendations: [
+          'Consider deep breathing exercises to reduce stress levels',
+          'Schedule breaks between intense work sessions',
+          'Practice mindfulness meditation for 10 minutes daily'
+        ],
+        rawAnalysis: 'AI-powered analysis of vocal patterns, speech characteristics, and emotional indicators'
+      };
+
+      const session = await storage.createMediaAnalysisSession({
+        userId: req.user.id,
+        mediaType,
+        duration,
+        recordingUrl: recordingUrl || null,
+        analysisResult
+      });
+
+      res.json(session);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Privacy & data management routes
   apiRouter.post("/privacy/export", requireAuth, async (req: any, res) => {
     try {

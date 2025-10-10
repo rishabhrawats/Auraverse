@@ -10,6 +10,7 @@ const navigation = [
   { name: "Programs", href: "/programs", icon: "fas fa-brain" },
   { name: "Zen Mode", href: "/zen", icon: "fas fa-spa" },
   { name: "Journal", href: "/journal", icon: "fas fa-lock" },
+  { name: "Media Analysis", href: "/media-analysis", icon: "fas fa-microphone" },
   { name: "Insights", href: "/insights", icon: "fas fa-chart-bar" },
 ];
 

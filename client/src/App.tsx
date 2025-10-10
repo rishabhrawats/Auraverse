@@ -16,6 +16,7 @@ import ZenMode from "@/pages/zen";
 import Journal from "@/pages/journal";
 import Oracle from "@/pages/oracle";
 import Insights from "@/pages/insights";
+import MediaAnalysis from "@/pages/media-analysis";
 import Billing from "@/pages/billing";
 import Privacy from "@/pages/privacy";
 import SignIn from "@/components/auth/sign-in";
@@ -38,6 +39,7 @@ function AuthenticatedApp() {
           <Route path="/journal" component={Journal} />
           <Route path="/oracle" component={Oracle} />
           <Route path="/insights" component={Insights} />
+          <Route path="/media-analysis" component={MediaAnalysis} />
           <Route path="/billing" component={Billing} />
           <Route path="/privacy" component={Privacy} />
           <Route component={NotFound} />
