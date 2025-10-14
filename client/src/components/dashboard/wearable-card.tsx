@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Watch, Activity, Heart, Zap, Plus } from 'lucide-react';
+import { Watch, Activity, Heart, Smartphone, Plus } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import type { WearableConnection } from '@shared/schema';
 
@@ -9,8 +9,9 @@ const DEVICE_TYPES = [
   { id: 'APPLE_WATCH', name: 'Apple Watch', icon: Watch, color: 'bg-gray-900' },
   { id: 'FITBIT', name: 'Fitbit', icon: Activity, color: 'bg-teal-600' },
   { id: 'OURA', name: 'Oura Ring', icon: Heart, color: 'bg-purple-600' },
-  { id: 'WHOOP', name: 'WHOOP', icon: Zap, color: 'bg-red-600' },
-  { id: 'GARMIN', name: 'Garmin', icon: Watch, color: 'bg-blue-600' },
+  { id: 'SAMSUNG', name: 'Samsung Watch', icon: Watch, color: 'bg-blue-600' },
+  { id: 'AMAZFIT', name: 'Amazfit', icon: Smartphone, color: 'bg-orange-600' },
+  { id: 'XIAOMI', name: 'Xiaomi Band', icon: Activity, color: 'bg-red-600' },
 ];
 
 export function WearableCard() {

@@ -158,7 +158,7 @@ export const mediaAnalysisSessions = pgTable("media_analysis_sessions", {
 export const wearableConnections = pgTable("wearable_connections", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull(),
-  deviceType: text("device_type").notNull(), // 'APPLE_WATCH', 'FITBIT', 'OURA', 'WHOOP', 'GARMIN'
+  deviceType: text("device_type").notNull(), // 'APPLE_WATCH', 'FITBIT', 'OURA', 'SAMSUNG', 'AMAZFIT', 'XIAOMI'
   deviceName: text("device_name"),
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
