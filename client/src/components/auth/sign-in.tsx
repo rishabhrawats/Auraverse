@@ -78,10 +78,10 @@ export default function SignIn() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-foreground" data-testid="text-signin-title">
+          <h1 className="text-3xl font-bold text-primary" data-testid="text-signin-title">
             AuraVerse AI
           </h1>
-          <p className="text-muted-foreground mt-2" data-testid="text-signin-subtitle">
+          <p className="text-foreground mt-2" data-testid="text-signin-subtitle">
             Sign in to your account
           </p>
         </div>

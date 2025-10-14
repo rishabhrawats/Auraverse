@@ -111,7 +111,7 @@ export default function Landing() {
             AI-Powered Mental Wellness Platform
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight" data-testid="text-landing-title">
+          <h1 className="text-5xl md:text-7xl font-bold text-primary leading-tight" data-testid="text-landing-title">
             Mental Wellness
             <br />
             Built for Founders
@@ -161,10 +161,10 @@ export default function Landing() {
       {/* Features Grid */}
       <div className="container mx-auto px-4 py-20">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
             Everything You Need to Thrive
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-foreground max-w-2xl mx-auto">
             A comprehensive mental wellness platform designed specifically for the unique challenges of entrepreneurship
           </p>
         </div>
@@ -177,8 +177,8 @@ export default function Landing() {
                   {feature.icon}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
+                  <h3 className="font-semibold text-lg mb-2 text-primary">{feature.title}</h3>
+                  <p className="text-foreground text-sm leading-relaxed">{feature.description}</p>
                 </div>
               </div>
             </Card>
@@ -189,10 +189,10 @@ export default function Landing() {
       {/* Pricing Section */}
       <div className="container mx-auto px-4 py-20 bg-muted/30">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
             Simple, Transparent Pricing
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-foreground max-w-2xl mx-auto">
             Choose the plan that fits your mental wellness journey
           </p>
         </div>
@@ -211,8 +211,8 @@ export default function Landing() {
               )}
               
               <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold mb-2">{tier.name}</h3>
-                <p className="text-muted-foreground text-sm mb-4">{tier.description}</p>
+                <h3 className="text-2xl font-bold text-primary mb-2">{tier.name}</h3>
+                <p className="text-foreground text-sm mb-4">{tier.description}</p>
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-5xl font-bold">{tier.price}</span>
                   <span className="text-muted-foreground">{tier.period}</span>
@@ -223,7 +223,7 @@ export default function Landing() {
                 {tier.features.map((feature, fidx) => (
                   <li key={fidx} className="flex items-start gap-3">
                     <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">{feature}</span>
+                    <span className="text-sm text-foreground">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -245,10 +245,10 @@ export default function Landing() {
       <div className="container mx-auto px-4 py-20">
         <Card className="p-12 bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 border-none">
           <div className="max-w-3xl mx-auto text-center space-y-6">
-            <h2 className="text-3xl md:text-4xl font-bold">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary">
               Ready to Transform Your Mental Wellness?
             </h2>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-foreground">
               Join thousands of founders who trust AuraVerse AI for their mental health journey
             </p>
             <Button 

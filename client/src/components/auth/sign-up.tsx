@@ -125,10 +125,10 @@ export default function SignUp() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-foreground" data-testid="text-signup-title">
+          <h1 className="text-3xl font-bold text-primary" data-testid="text-signup-title">
             AuraVerse AI
           </h1>
-          <p className="text-muted-foreground mt-2" data-testid="text-signup-subtitle">
+          <p className="text-foreground mt-2" data-testid="text-signup-subtitle">
             Create your account
           </p>
         </div>
