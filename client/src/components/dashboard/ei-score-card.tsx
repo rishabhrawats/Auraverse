@@ -21,7 +21,7 @@ export function EIScoreCard({
   return (
     <Card className="bg-card border-border purple-glow-hover" data-testid="card-ei-score">
       <CardContent className="p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4" data-testid="text-ei-title">
+        <h3 className="text-lg font-semibold text-primary mb-4" data-testid="text-ei-title">
           Effectiveness Score
         </h3>
         

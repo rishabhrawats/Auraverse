@@ -11,9 +11,9 @@ export function Header({ title, subtitle, userName }: HeaderProps) {
     <header className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border z-40">
       <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground" data-testid="header-title">{title}</h2>
+          <h2 className="text-2xl font-bold text-primary" data-testid="header-title">{title}</h2>
           {subtitle && (
-            <p className="text-sm text-muted-foreground mt-1" data-testid="header-subtitle">
+            <p className="text-sm text-foreground mt-1" data-testid="header-subtitle">
               {subtitle.includes("{userName}") && userName 
                 ? subtitle.replace("{userName}", userName)
                 : subtitle

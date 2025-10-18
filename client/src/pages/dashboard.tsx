@@ -164,7 +164,7 @@ export default function Dashboard() {
           <Card className="bg-card border-border">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-foreground" data-testid="text-active-programs">
+                <h3 className="text-lg font-semibold text-primary" data-testid="text-active-programs">
                   Active Programs
                 </h3>
                 <Button 
@@ -236,7 +236,7 @@ export default function Dashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground" data-testid="text-calendar-insights">
+                  <h3 className="text-lg font-semibold text-primary" data-testid="text-calendar-insights">
                     Calendar Insights
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">Next 48 hours workload analysis</p>

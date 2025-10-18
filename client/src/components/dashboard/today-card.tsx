@@ -45,7 +45,7 @@ export function TodayCard({
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h3 className="text-lg font-semibold text-foreground" data-testid="text-today-title">
+            <h3 className="text-lg font-semibold text-primary" data-testid="text-today-title">
               Today's Focus
             </h3>
             <p className="text-sm text-muted-foreground mt-1" data-testid="text-today-date">

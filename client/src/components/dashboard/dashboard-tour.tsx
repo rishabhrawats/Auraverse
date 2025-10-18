@@ -166,7 +166,7 @@ export function DashboardTour({ onComplete }: DashboardTourProps) {
               <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm">
                 {currentStep + 1}
               </div>
-              <h3 className="text-lg font-semibold text-foreground">{step.title}</h3>
+              <h3 className="text-lg font-semibold text-primary">{step.title}</h3>
             </div>
             <Button
               variant="ghost"
