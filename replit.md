@@ -9,14 +9,14 @@ AuraVerse AI is an AI-powered mental wellness platform specifically designed for
 Preferred communication style: Simple, everyday language.
 
 **Design Theme:**
-- Black background (`#000000` / `0 0% 0%`) throughout the application
-- White text (`#FFFFFF` / `0 0% 100%`) for all content
-- Purple headers (`#A78BFA` / `270 75% 65%`) for all headings and titles
-- Light gray (`0 0% 70%`) for secondary text (muted-foreground)
-- High contrast design for maximum visibility
-- Purple accents for interactive elements and branding
-- All page headers use `text-primary` class
-- All section headers use `text-primary` class
+- Deep purple background (`#2D1B4E` / `260 45% 15%`) throughout the application
+- Cream/light beige text (`#F5F2E8` / `45 15% 95%`) for all content
+- Gold/yellow primary color (`#F4C430` / `45 90% 60%`) for headings, CTAs, and key interactive elements
+- Purple secondary color (`#A78BFA` / `270 70% 60%`) for accents and gradients
+- Soft muted tones (`260 30% 25%`) for secondary text
+- Gradient animations combining gold and purple for premium feel
+- All page headers use gold `text-primary` class
+- Cards and components use subtle purple tints
 
 ## System Architecture
 
