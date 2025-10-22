@@ -24,7 +24,7 @@ export default function Oracle() {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { data: latestEI } = useQuery({
+  const { data: latestEI } = useQuery<{ state: string }>({
     queryKey: ["/api/ei/latest"],
     enabled: !!user,
   });
