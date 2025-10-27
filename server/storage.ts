@@ -338,7 +338,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select()
       .from(wearableConnections)
       .where(eq(wearableConnections.userId, userId))
-      .orderBy(desc(wearableConnections.connectedAt));
+      .orderBy(desc(wearableConnections.createdAt));
   }
 
   async createWearableConnection(insertConnection: InsertWearableConnection): Promise<WearableConnection> {
