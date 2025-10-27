@@ -700,9 +700,44 @@ Keep responses concise (2-3 paragraphs), supportive, and actionable.`;
   // Wearable device routes
   apiRouter.get("/wearables", requireAuth, async (req: any, res) => {
     try {
-      // Placeholder - return empty array for now
-      // In production, this would fetch user's wearable connections
-      res.json([]);
+      const connections = await storage.getWearableConnections(req.user.id);
+      res.json(connections);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  apiRouter.post("/wearables/connect", requireAuth, async (req: any, res) => {
+    try {
+      const { deviceType } = req.body;
+      
+      if (!deviceType) {
+        return res.status(400).json({ error: 'Device type is required' });
+      }
+
+      // In production, this would initiate OAuth flow for the device
+      // For now, we'll create a simulated connection
+      const connection = await storage.createWearableConnection({
+        userId: req.user.id,
+        deviceType,
+        deviceName: deviceType.replace('_', ' '),
+        accessToken: 'simulated_token_' + Date.now(),
+        refreshToken: null,
+        tokenExpiry: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        isActive: true,
+        lastSync: new Date()
+      });
+
+      res.json(connection);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  apiRouter.delete("/wearables/:id", requireAuth, async (req: any, res) => {
+    try {
+      await storage.deleteWearableConnection(req.params.id, req.user.id);
+      res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

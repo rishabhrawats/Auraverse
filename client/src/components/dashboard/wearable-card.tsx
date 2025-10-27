@@ -1,8 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Watch, Activity, Heart, Smartphone, Plus } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { Watch, Activity, Heart, Smartphone, Plus, X } from 'lucide-react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import type { WearableConnection } from '@shared/schema';
 
 const DEVICE_TYPES = [
@@ -15,17 +17,75 @@ const DEVICE_TYPES = [
 ];
 
 export function WearableCard() {
+  const { toast } = useToast();
+  
   const { data: connections = [] } = useQuery<WearableConnection[]>({
     queryKey: ['/api/wearables'],
   });
 
-  const connectedDevices = new Set(connections.filter(c => c.isActive).map(c => c.deviceType));
+  const connectMutation = useMutation({
+    mutationFn: async (deviceType: string) => {
+      const response = await apiRequest('POST', '/api/wearables/connect', { deviceType });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/wearables'] });
+      toast({
+        title: 'Device Connected',
+        description: 'Your wearable device has been connected successfully.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Connection Failed',
+        description: error instanceof Error ? error.message : 'Failed to connect device',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const disconnectMutation = useMutation({
+    mutationFn: async (connectionId: string) => {
+      const response = await apiRequest('DELETE', `/api/wearables/${connectionId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/wearables'] });
+      toast({
+        title: 'Device Disconnected',
+        description: 'Your wearable device has been disconnected.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Disconnection Failed',
+        description: error instanceof Error ? error.message : 'Failed to disconnect device',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const connectedDevicesMap = new Map(
+    connections
+      .filter(c => c.isActive)
+      .map(c => [c.deviceType, c.id])
+  );
+
+  const handleDeviceClick = (deviceId: string) => {
+    const connectionId = connectedDevicesMap.get(deviceId);
+    
+    if (connectionId) {
+      disconnectMutation.mutate(connectionId);
+    } else {
+      connectMutation.mutate(deviceId);
+    }
+  };
 
   return (
     <Card data-testid="card-wearables">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Activity className="h-5 w-5 text-primary" />
+        <CardTitle className="flex items-center gap-2 text-primary">
+          <Activity className="h-5 w-5" />
           Wearable Devices
         </CardTitle>
         <CardDescription>
@@ -36,17 +96,21 @@ export function WearableCard() {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {DEVICE_TYPES.map((device) => {
             const Icon = device.icon;
-            const isConnected = connectedDevices.has(device.id);
+            const isConnected = connectedDevicesMap.has(device.id);
+            const isLoading = connectMutation.isPending || disconnectMutation.isPending;
             
             return (
               <button
                 key={device.id}
+                onClick={() => handleDeviceClick(device.id)}
+                disabled={isLoading}
                 className={`
                   relative p-4 rounded-lg border-2 transition-all
                   ${isConnected 
                     ? 'border-primary bg-primary/10' 
                     : 'border-border hover:border-primary/50 hover:bg-accent'
                   }
+                  ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                 `}
                 data-testid={`button-connect-${device.id.toLowerCase()}`}
               >
@@ -54,11 +118,13 @@ export function WearableCard() {
                   <div className={`p-2 rounded-full ${device.color} text-white`}>
                     <Icon className="h-5 w-5" />
                   </div>
-                  <span className="text-sm font-medium">{device.name}</span>
-                  {isConnected && (
-                    <Badge variant="default" className="text-xs">Connected</Badge>
-                  )}
-                  {!isConnected && (
+                  <span className="text-sm font-medium text-foreground">{device.name}</span>
+                  {isConnected ? (
+                    <Badge variant="default" className="text-xs bg-primary">
+                      <X className="h-3 w-3 mr-1" />
+                      Disconnect
+                    </Badge>
+                  ) : (
                     <Badge variant="outline" className="text-xs">
                       <Plus className="h-3 w-3 mr-1" />
                       Connect
@@ -71,24 +137,24 @@ export function WearableCard() {
         </div>
 
         {connections.length > 0 && (
-          <div className="pt-4 border-t">
-            <h4 className="text-sm font-semibold mb-3">Recent Data</h4>
+          <div className="pt-4 border-t border-border">
+            <h4 className="text-sm font-semibold mb-3 text-primary">Recent Data</h4>
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-lg bg-secondary">
+              <div className="p-3 rounded-lg bg-card border border-border">
                 <div className="text-xs text-muted-foreground">Heart Rate</div>
-                <div className="text-lg font-semibold">72 bpm</div>
+                <div className="text-lg font-semibold text-foreground">72 bpm</div>
               </div>
-              <div className="p-3 rounded-lg bg-secondary">
+              <div className="p-3 rounded-lg bg-card border border-border">
                 <div className="text-xs text-muted-foreground">Sleep</div>
-                <div className="text-lg font-semibold">7.5 hrs</div>
+                <div className="text-lg font-semibold text-foreground">7.5 hrs</div>
               </div>
-              <div className="p-3 rounded-lg bg-secondary">
+              <div className="p-3 rounded-lg bg-card border border-border">
                 <div className="text-xs text-muted-foreground">Steps</div>
-                <div className="text-lg font-semibold">8,421</div>
+                <div className="text-lg font-semibold text-foreground">8,421</div>
               </div>
-              <div className="p-3 rounded-lg bg-secondary">
+              <div className="p-3 rounded-lg bg-card border border-border">
                 <div className="text-xs text-muted-foreground">HRV</div>
-                <div className="text-lg font-semibold">54 ms</div>
+                <div className="text-lg font-semibold text-foreground">54 ms</div>
               </div>
             </div>
             <p className="text-xs text-muted-foreground mt-3">
@@ -100,7 +166,7 @@ export function WearableCard() {
         {connections.length === 0 && (
           <div className="text-center py-6">
             <p className="text-sm text-muted-foreground">
-              No devices connected yet. Connect a wearable to get started.
+              No devices connected yet. Click any device above to connect.
             </p>
           </div>
         )}
