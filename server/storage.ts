@@ -1,11 +1,13 @@
 import { 
   users, profiles, journals, eiSnapshots, programAssignments, 
   calendarCreds, subscriptions, zenSessions, programSteps, mediaAnalysisSessions,
+  wearableConnections,
   type User, type InsertUser, type Profile, type InsertProfile,
   type Journal, type InsertJournal, type EISnapshot, type InsertEISnapshot,
   type ProgramAssignment, type InsertProgramAssignment, type CalendarCred,
   type Subscription, type ZenSession, type InsertZenSession, type ProgramStep,
-  type MediaAnalysisSession, type InsertMediaAnalysisSession
+  type MediaAnalysisSession, type InsertMediaAnalysisSession,
+  type WearableConnection, type InsertWearableConnection
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
@@ -63,6 +65,11 @@ export interface IStorage {
   // Media analysis sessions
   getMediaAnalysisSessions(userId: string, limit?: number): Promise<MediaAnalysisSession[]>;
   createMediaAnalysisSession(session: InsertMediaAnalysisSession): Promise<MediaAnalysisSession>;
+  
+  // Wearable connections
+  getWearableConnections(userId: string): Promise<WearableConnection[]>;
+  createWearableConnection(connection: InsertWearableConnection): Promise<WearableConnection>;
+  deleteWearableConnection(id: string, userId: string): Promise<void>;
   
   // Analytics & insights
   getCalendarWorkloadCorrelation(userId: string, days?: number): Promise<any>;
@@ -324,6 +331,27 @@ export class DatabaseStorage implements IStorage {
   async createMediaAnalysisSession(insertSession: InsertMediaAnalysisSession): Promise<MediaAnalysisSession> {
     const [session] = await db.insert(mediaAnalysisSessions).values(insertSession).returning();
     return session;
+  }
+
+  // Wearable connections
+  async getWearableConnections(userId: string): Promise<WearableConnection[]> {
+    return await db.select()
+      .from(wearableConnections)
+      .where(eq(wearableConnections.userId, userId))
+      .orderBy(desc(wearableConnections.connectedAt));
+  }
+
+  async createWearableConnection(insertConnection: InsertWearableConnection): Promise<WearableConnection> {
+    const [connection] = await db.insert(wearableConnections).values(insertConnection).returning();
+    return connection;
+  }
+
+  async deleteWearableConnection(id: string, userId: string): Promise<void> {
+    await db.delete(wearableConnections)
+      .where(and(
+        eq(wearableConnections.id, id),
+        eq(wearableConnections.userId, userId)
+      ));
   }
 
   // Analytics & insights
