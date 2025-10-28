@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/use-auth";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { SplashScreen } from "@/components/layout/splash-screen";
+import { useState } from "react";
 
 // Pages
 import Landing from "@/pages/landing";
@@ -76,6 +78,18 @@ function UnauthenticatedApp() {
 
 function App() {
   const { isAuthenticated, loading } = useAuth();
+  const [showSplash, setShowSplash] = useState(() => {
+    return !sessionStorage.getItem("hasSeenSplash");
+  });
+
+  const handleSplashComplete = () => {
+    sessionStorage.setItem("hasSeenSplash", "true");
+    setShowSplash(false);
+  };
+
+  if (showSplash) {
+    return <SplashScreen onComplete={handleSplashComplete} />;
+  }
 
   if (loading) {
     return (

@@ -141,6 +141,29 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
+  /* Fade in scale animation for splash screen */
+  @keyframes fadeInScale {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   /* Slide in animation */
   .slide-in {
     animation: slide-in 0.4s ease-out;

@@ -106,6 +106,15 @@ export default function Landing() {
       {/* Hero Section */}
       <div className="container mx-auto px-4 pt-20 pb-16">
         <div className="max-w-4xl mx-auto text-center space-y-8">
+          <div className="flex justify-center mb-8">
+            <img 
+              src="/logo.png" 
+              alt="AuraVerse AI Logo" 
+              className="h-48 md:h-64 w-auto animate-[fadeIn_1s_ease-in-out] purple-glow-hover"
+              data-testid="landing-logo"
+            />
+          </div>
+          
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-sm font-medium text-primary">
             <Zap className="h-4 w-4" />
             AI-Powered Mental Wellness Platform
