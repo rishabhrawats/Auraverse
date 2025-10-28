@@ -8,15 +8,23 @@ AuraVerse AI is an AI-powered mental wellness platform specifically designed for
 
 Preferred communication style: Simple, everyday language.
 
-**Design Theme:**
-- Deep purple background (`#2D1B4E` / `260 45% 15%`) throughout the application
-- Cream/light beige text (`#F5F2E8` / `45 15% 95%`) for all content
-- Gold/yellow primary color (`#F4C430` / `45 90% 60%`) for headings, CTAs, and key interactive elements
-- Purple secondary color (`#A78BFA` / `270 70% 60%`) for accents and gradients
-- Soft muted tones (`260 30% 25%`) for secondary text
-- Gradient animations combining gold and purple for premium feel
-- All page headers use gold `text-primary` class
-- Cards and components use subtle purple tints
+**Design Theme (Modern Purple UI/UX):**
+- **Background**: Deep purple (`#281A3E` / `270 50% 12%`) - rich, professional base
+- **Text**: Pure white (`#FFFFFF` / `0 0% 100%`) for primary content, light gray (`#BFBFBF` / `0 0% 75%`) for secondary text
+- **Primary Color**: Vibrant purple (`#A78BFA` / `270 75% 65%`) - interactive elements, CTAs, highlights
+- **Cards**: Slightly lighter purple (`#33234D` / `270 45% 16%`) with subtle purple borders
+- **Borders**: Purple tinted (`#5C4470` / `270 30% 30%`)
+- **Shadows**: Purple-tinted shadows for depth and modern feel
+- **UI/UX Features**:
+  - Enhanced glassmorphism effects with backdrop blur
+  - Smooth hover animations with lift effects (4px translateY)
+  - Purple glow on interactive elements
+  - Gradient animations for premium feel
+  - Rounded corners (0.75rem border radius)
+  - Modern card shadows with purple tint
+  - Smooth transitions using cubic-bezier easing
+- Logo prominently displayed in header, landing page, and splash screen
+- Splash screen shown on first visit with animated logo reveal
 
 ## System Architecture
 
