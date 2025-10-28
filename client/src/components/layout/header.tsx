@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import logoImg from "@assets/auraverse-logo.png";
 
 interface HeaderProps {
   title: string;
@@ -11,24 +10,16 @@ export function Header({ title, subtitle, userName }: HeaderProps) {
   return (
     <header className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border z-40">
       <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <img 
-            src={logoImg} 
-            alt="AuraVerse AI Logo" 
-            className="h-12 w-auto object-contain"
-            data-testid="logo-header"
-          />
-          <div>
-            <h2 className="text-2xl font-bold text-primary" data-testid="header-title">{title}</h2>
-            {subtitle && (
-              <p className="text-sm text-foreground mt-1" data-testid="header-subtitle">
-                {subtitle.includes("{userName}") && userName 
-                  ? subtitle.replace("{userName}", userName)
-                  : subtitle
-                }
-              </p>
-            )}
-          </div>
+        <div>
+          <h2 className="text-2xl font-bold text-primary" data-testid="header-title">{title}</h2>
+          {subtitle && (
+            <p className="text-sm text-foreground mt-1" data-testid="header-subtitle">
+              {subtitle.includes("{userName}") && userName 
+                ? subtitle.replace("{userName}", userName)
+                : subtitle
+              }
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-4">
           {/* Search (keyboard shortcut: CMD+K) */}

@@ -1,7 +1,6 @@
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import logoImg from "@assets/auraverse-logo.png";
 import { 
   Brain, 
   Sparkles, 
@@ -107,16 +106,6 @@ export default function Landing() {
       {/* Hero Section */}
       <div className="container mx-auto px-4 pt-20 pb-16">
         <div className="max-w-4xl mx-auto text-center space-y-8">
-          {/* Logo */}
-          <div className="flex justify-center mb-8">
-            <img 
-              src={logoImg} 
-              alt="AuraVerse AI - Where Minds Rise With Safe Intelligence" 
-              className="h-48 md:h-64 w-auto object-contain gold-glow-hover"
-              data-testid="logo-landing"
-            />
-          </div>
-          
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-sm font-medium text-primary">
             <Zap className="h-4 w-4" />
             AI-Powered Mental Wellness Platform
