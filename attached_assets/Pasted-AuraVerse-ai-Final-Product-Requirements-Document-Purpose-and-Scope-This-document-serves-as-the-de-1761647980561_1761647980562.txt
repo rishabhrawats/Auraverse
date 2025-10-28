@@ -1,0 +1,125 @@
+AuraVerse.ai – Final Product Requirements Document
+Purpose and Scope
+
+This document serves as the definitive specification for developing the AuraVerse.ai mental‑wellness platform on Replit. It incorporates observations from a thorough review of the existing auraverse‑ai.com prototype, addresses the non‑functional elements (such as broken social logins and missing UI controls), and specifies how to implement essential features like password visibility toggles, password recovery, and working OAuth integrations. The platform is aimed at founders and entrepreneurs seeking AI‑assisted mental‑health support, with a strong emphasis on privacy, security and user engagement.
+
+Summary of Issues Identified
+
+During our review of the current site, we found several issues that need correction before deployment:
+
+Social logins non‑functional – The “Continue with Google” and “Continue with LinkedIn” buttons on the sign‑in page do not redirect users to authentication flows
+auraverse-ai.com
+. Clicking Google redirects to /api/auth/google but returns to the homepage without any action
+auraverse-ai.com
+.
+
+No password visibility toggle – The password fields on both sign‑in and sign‑up pages display dots without any option to reveal the typed password
+auraverse-ai.com
+auraverse-ai.com
+.
+
+Missing “Forgot password” functionality – There is no link or process for users to reset forgotten passwords
+auraverse-ai.com
+.
+
+Footer links broken – Privacy Policy, Terms of Service, and Contact links still lead to empty pages
+auraverse-ai.com
+.
+
+AI Oracle and media analysis unavailable – Although the landing page lists AI‑powered features, there is currently no accessible AI Oracle assistant or media analysis interface.
+
+Google/LinkedIn API keys not configured – The site lacks integration with Google and LinkedIn OAuth providers and other third‑party services.
+
+Functional Requirements (Updates and Additions)
+Authentication & Account Management
+
+Password input component – Replace static password fields with a component that includes a show/hide toggle and error states. A React example is shown below (can be adapted for plain JS):
+
+import { useState } from 'react';
+
+export default function PasswordField({ id, value, onChange, placeholder }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="password-field">
+      <input
+        id={id}
+        type={show ? 'text' : 'password'}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        autoComplete="current-password"
+      />
+      <button
+        type="button"
+        className="toggle-visibility"
+        onClick={() => setShow(!show)}
+        aria-label={show ? 'Hide password' : 'Show password'}
+      >
+        {show ? '🙈' : '👁️'}
+      </button>
+    </div>
+  );
+}
+
+
+Forgot password flow – Add a link labelled “Forgot your password?” below the password field. Clicking this opens a form to enter an email address. The backend should generate a secure token, email a reset link, and allow the user to set a new password. Use short‑lived tokens and rate limiting for security.
+
+Working OAuth – Integrate Google and LinkedIn login buttons using their respective OAuth APIs. In development, register the application with Google Cloud and LinkedIn Developer portal to obtain client IDs and secrets. Use the next-auth package or similar for managing providers. On button click, redirect to the provider’s OAuth URL; upon successful authentication, create or retrieve the user and redirect to the dashboard.
+
+UI States – Display loading spinners on social login buttons while redirecting. Show validation errors for invalid emails and weak passwords. After sign‑in/sign‑up, persist the user session, update the header to show the user’s avatar and a Logout button, and redirect to the user dashboard.
+
+AI Oracle Assistant and Media Analysis
+
+AI Oracle availability – Implement a dedicated page and/or embed a chat interface into the user dashboard that allows authenticated users to converse with the AI Oracle. The assistant should be built using large‑language‑model APIs and provide mental‑health Q&A, decision support, and resource suggestions. Restrict the assistant from giving clinical diagnoses and include clear disclosures that it is for informational purposes only.
+
+Media analysis tool – Provide a module for users to upload images or short videos (e.g., screenshots of mood trackers or workplace setups) for AI analysis. The AI can detect mood or stress indicators and offer feedback. Ensure media uploads are securely transmitted and stored. Use computer vision models with privacy‑centric design (process locally or ensure images are deleted after analysis).
+
+Footer & Legal Pages
+
+Functional links – Populate the Privacy Policy, Terms of Service, and Contact pages with full text. Add a contact form that uses client‑side validation and sends inquiries to an admin email. Include “Sign In/Sign Up” and “Logout” buttons in the footer for convenience.
+
+Unified Navigation and Controls
+
+Always visible auth controls – Add Sign‑Up and Sign‑In buttons to the top navigation when the user is not authenticated; once logged in, show an avatar with a dropdown containing Profile, Settings, and Logout options.
+
+Logout mechanism – Invalidate the session on the server and clear tokens on the client. Confirm logout with a toast notification and redirect to the home page.
+
+API Configuration and Deployment
+
+Environment variables – Store API IDs and secrets (Google, LinkedIn, OpenAI/Anthropic, Stripe) in environment variables and provide an admin UI for updating them. Use .env files on Replit for local development.
+
+Error handling – Display user‑friendly messages if an API call fails or a service is misconfigured. Log errors for internal diagnostics.
+
+Final QA Checklist
+
+Verify that password visibility toggle works on both sign‑in and sign‑up forms, including accessibility labels.
+
+Check that Forgot password initiates a token email and that reset flows work end‑to‑end.
+
+Ensure Google and LinkedIn OAuth flows authenticate users and return them to the dashboard. Use test accounts in development.
+
+Confirm that AI Oracle and media analysis modules are reachable after login and produce responses.
+
+Test all buttons and links across the site for correct routing and feedback (highlighted by the user as crucial). Use automated end‑to‑end tests for regression.
+
+Validate that each page (landing, features, pricing, contact, signup, signin, dashboard) includes sign‑up/sign‑in or logout buttons based on user state.
+
+Deployment Notes
+
+Deploy the application on Replit following the phases outlined in the previous PRD, ensuring environment variables are set. Use the final design system built around the provided logo and colour palette, implement animations and conversational assistant as described, and run through the QA checklist before launching publicly.
+
+Conclusion
+
+The final PRD addresses all outstanding issues from the previous iterations. It mandates functional social logins, adds password visibility and recovery features, introduces working AI modules, and ensures every interactive element is operational. Following this specification will produce a robust, user‑friendly, and secure mental‑wellness platform ready for deployment on Replit.
+
+Key improvements highlighted:
+
+Functional social login: Google and LinkedIn buttons must authenticate via OAuth, with environment variables for API keys.
+
+Password visibility & reset: Added show/hide toggle and a forgot password mechanism, with sample React code for implementation.
+
+Persistent auth controls: Sign-up, Sign-in, and Logout buttons are visible on every page, adapting to user state.
+
+Working AI Oracle & media analysis: Dedicated modules provide conversational support and secure media analysis for mood insights.
+
+Comprehensive QA checklist: Ensures every button works, legal pages are populated, and all APIs are configured before deployment.

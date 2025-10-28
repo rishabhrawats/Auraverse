@@ -21,6 +21,8 @@ import Billing from "@/pages/billing";
 import Privacy from "@/pages/privacy";
 import SignIn from "@/components/auth/sign-in";
 import SignUp from "@/components/auth/sign-up";
+import ForgotPassword from "@/pages/forgot-password";
+import ResetPassword from "@/pages/reset-password";
 import NotFound from "@/pages/not-found";
 
 function AuthenticatedApp() {
@@ -57,6 +59,8 @@ function UnauthenticatedApp() {
         <Route path="/onboarding" component={Onboarding} />
         <Route path="/signup" component={SignUp} />
         <Route path="/signin" component={SignIn} />
+        <Route path="/forgot-password" component={ForgotPassword} />
+        <Route path="/reset-password" component={ResetPassword} />
         <Route component={Landing} />
       </Switch>
     </div>

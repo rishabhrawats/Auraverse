@@ -26,6 +26,15 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").default(sql`now()`),
 });
 
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  used: boolean("used").default(false),
+  createdAt: timestamp("created_at").default(sql`now()`),
+});
+
 export const profiles = pgTable("profiles", {
   userId: varchar("user_id").primaryKey(),
   ventureStage: ventureStageEnum("venture_stage").notNull(),
@@ -334,6 +343,11 @@ export const insertWearableDataSchema = createInsertSchema(wearableData).omit({
   createdAt: true,
 });
 
+export const insertPasswordResetTokenSchema = createInsertSchema(passwordResetTokens).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -356,3 +370,5 @@ export type WearableConnection = typeof wearableConnections.$inferSelect;
 export type InsertWearableConnection = z.infer<typeof insertWearableConnectionSchema>;
 export type WearableData = typeof wearableData.$inferSelect;
 export type InsertWearableData = z.infer<typeof insertWearableDataSchema>;
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+export type InsertPasswordResetToken = z.infer<typeof insertPasswordResetTokenSchema>;

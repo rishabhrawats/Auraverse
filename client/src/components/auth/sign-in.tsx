@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -147,10 +148,20 @@ export default function SignIn() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Password</FormLabel>
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="p-0 h-auto text-xs text-primary hover:text-primary/80"
+                      onClick={() => setLocation("/forgot-password")}
+                      data-testid="link-forgot-password"
+                    >
+                      Forgot password?
+                    </Button>
+                  </div>
                   <FormControl>
-                    <Input
-                      type="password"
+                    <PasswordInput
                       placeholder="••••••••"
                       {...field}
                       data-testid="input-password"

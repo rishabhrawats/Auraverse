@@ -1,13 +1,14 @@
 import { 
   users, profiles, journals, eiSnapshots, programAssignments, 
   calendarCreds, subscriptions, zenSessions, programSteps, mediaAnalysisSessions,
-  wearableConnections,
+  wearableConnections, passwordResetTokens,
   type User, type InsertUser, type Profile, type InsertProfile,
   type Journal, type InsertJournal, type EISnapshot, type InsertEISnapshot,
   type ProgramAssignment, type InsertProgramAssignment, type CalendarCred,
   type Subscription, type ZenSession, type InsertZenSession, type ProgramStep,
   type MediaAnalysisSession, type InsertMediaAnalysisSession,
-  type WearableConnection, type InsertWearableConnection
+  type WearableConnection, type InsertWearableConnection,
+  type PasswordResetToken, type InsertPasswordResetToken
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
@@ -70,6 +71,11 @@ export interface IStorage {
   getWearableConnections(userId: string): Promise<WearableConnection[]>;
   createWearableConnection(connection: InsertWearableConnection): Promise<WearableConnection>;
   deleteWearableConnection(id: string, userId: string): Promise<void>;
+  
+  // Password reset tokens
+  createPasswordResetToken(token: InsertPasswordResetToken): Promise<PasswordResetToken>;
+  getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
+  markPasswordResetTokenUsed(token: string): Promise<void>;
   
   // Analytics & insights
   getCalendarWorkloadCorrelation(userId: string, days?: number): Promise<any>;
@@ -352,6 +358,26 @@ export class DatabaseStorage implements IStorage {
         eq(wearableConnections.id, id),
         eq(wearableConnections.userId, userId)
       ));
+  }
+
+  // Password reset tokens
+  async createPasswordResetToken(insertToken: InsertPasswordResetToken): Promise<PasswordResetToken> {
+    const [token] = await db.insert(passwordResetTokens).values(insertToken).returning();
+    return token;
+  }
+
+  async getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined> {
+    const [resetToken] = await db.select()
+      .from(passwordResetTokens)
+      .where(eq(passwordResetTokens.token, token))
+      .limit(1);
+    return resetToken;
+  }
+
+  async markPasswordResetTokenUsed(token: string): Promise<void> {
+    await db.update(passwordResetTokens)
+      .set({ used: true })
+      .where(eq(passwordResetTokens.token, token));
   }
 
   // Analytics & insights
