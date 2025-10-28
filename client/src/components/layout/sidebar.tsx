@@ -121,23 +121,23 @@ export function Sidebar({ user }: SidebarProps) {
     </aside>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-sidebar border-t border-sidebar-border z-50 safe-area-inset-bottom">
-        <div className="flex items-center justify-around px-2 py-2">
-          {navigation.slice(0, 5).map((item) => {
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-sidebar border-t border-sidebar-border z-50 pb-safe" data-testid="mobile-bottom-nav">
+        <div className="grid grid-cols-7 gap-0 px-1 py-2">
+          {navigation.map((item) => {
             const isActive = location === item.href || location.startsWith(item.href + "/");
             return (
               <Link key={item.name} href={item.href}>
                 <div
                   className={cn(
-                    "flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-smooth cursor-pointer min-w-[60px]",
+                    "flex flex-col items-center gap-0.5 px-1 py-1.5 rounded-lg text-xs font-medium transition-smooth cursor-pointer",
                     isActive
                       ? "text-sidebar-primary bg-sidebar-accent"
                       : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                   )}
                   data-testid={`nav-mobile-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
                 >
-                  <i className={`${item.icon} text-base`}></i>
-                  <span className="text-[10px] truncate max-w-[60px]">{item.name}</span>
+                  <i className={`${item.icon} text-sm`}></i>
+                  <span className="text-[9px] truncate max-w-[50px] leading-tight text-center">{item.name === 'Media Analysis' ? 'Media' : item.name}</span>
                 </div>
               </Link>
             );

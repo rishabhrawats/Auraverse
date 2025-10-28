@@ -31,7 +31,7 @@ Preferred communication style: Simple, everyday language.
 - **Landing Page**: Fully responsive with adaptive typography, stacked CTAs on mobile, 1-column mobile → 2-column tablet → 3-column desktop grids
 - **Navigation**: 
   - Desktop (≥1024px): Fixed left sidebar with all navigation items and user profile
-  - Mobile (<1024px): Bottom navigation bar with 5 key items (Dashboard, AI Oracle, Programs, Zen Mode, Journal)
+  - Mobile (<1024px): Bottom navigation bar with all 7 navigation items in 6-column grid (Dashboard, AI Oracle, Programs, Zen Mode, Journal, Media Analysis, Insights)
 - **Header**: Responsive logo sizing (h-8 on mobile → h-12 on desktop), search bar hidden on mobile (icon-only)
 - **Content Padding**: Global mobile padding-bottom (5rem) prevents overlap with bottom navigation
 - **All Pages**: Optimized for touch targets and no horizontal scrolling on any screen size
