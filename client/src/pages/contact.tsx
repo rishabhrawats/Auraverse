@@ -39,12 +39,23 @@ export default function Contact() {
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
     try {
-      // For demo purposes, just log to console
-      console.log("Contact form submission:", data);
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+
+      const result = await response.json();
       
       toast({
         title: "Message Sent!",
-        description: "We've received your message and will get back to you soon.",
+        description: result.message || "We've received your message and will get back to you soon.",
       });
       
       form.reset();

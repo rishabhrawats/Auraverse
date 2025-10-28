@@ -557,6 +557,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Contact form route
+  apiRouter.post("/contact", async (req: any, res) => {
+    try {
+      const { name, email, subject, message } = req.body;
+      
+      // Basic validation
+      if (!name || !email || !subject || !message) {
+        return res.status(400).json({ error: 'All fields are required' });
+      }
+      
+      // In production, this would send an email or store in a database
+      // For now, just log the submission
+      console.log('Contact form submission:', { name, email, subject, message });
+      
+      res.json({ 
+        success: true, 
+        message: 'Your message has been received. We will get back to you soon.' 
+      });
+    } catch (error: any) {
+      console.error('Contact form error:', error);
+      res.status(500).json({ error: 'Failed to process contact form' });
+    }
+  });
+
   // Calendar integration routes
   apiRouter.get("/calendar/workload", requireAuth, async (req: any, res) => {
     try {

@@ -271,13 +271,13 @@ export default function Landing() {
               © 2024 AuraVerse AI. All rights reserved.
             </p>
             <div className="flex gap-6 text-sm text-muted-foreground">
-              <button onClick={() => setLocation('/privacy')} className="hover:text-foreground transition-colors">
+              <button onClick={() => setLocation('/privacy')} className="hover:text-foreground transition-colors" data-testid="link-privacy-footer">
                 Privacy Policy
               </button>
-              <button className="hover:text-foreground transition-colors">
+              <button onClick={() => setLocation('/terms')} className="hover:text-foreground transition-colors" data-testid="link-terms-footer">
                 Terms of Service
               </button>
-              <button className="hover:text-foreground transition-colors">
+              <button onClick={() => setLocation('/contact')} className="hover:text-foreground transition-colors" data-testid="link-contact-footer">
                 Contact
               </button>
             </div>
