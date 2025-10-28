@@ -23,6 +23,8 @@ import SignIn from "@/components/auth/sign-in";
 import SignUp from "@/components/auth/sign-up";
 import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
+import Terms from "@/pages/terms";
+import Contact from "@/pages/contact";
 import NotFound from "@/pages/not-found";
 
 function AuthenticatedApp() {
@@ -44,6 +46,8 @@ function AuthenticatedApp() {
           <Route path="/media-analysis" component={MediaAnalysis} />
           <Route path="/billing" component={Billing} />
           <Route path="/privacy" component={Privacy} />
+          <Route path="/terms" component={Terms} />
+          <Route path="/contact" component={Contact} />
           <Route component={NotFound} />
         </Switch>
       </main>
@@ -61,6 +65,9 @@ function UnauthenticatedApp() {
         <Route path="/signin" component={SignIn} />
         <Route path="/forgot-password" component={ForgotPassword} />
         <Route path="/reset-password" component={ResetPassword} />
+        <Route path="/privacy" component={Privacy} />
+        <Route path="/terms" component={Terms} />
+        <Route path="/contact" component={Contact} />
         <Route component={Landing} />
       </Switch>
     </div>
