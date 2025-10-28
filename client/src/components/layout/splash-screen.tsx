@@ -14,7 +14,7 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
 
   return (
     <div 
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-background transition-opacity duration-500 ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-background transition-opacity duration-500 px-4 ${
         fadeOut ? "opacity-0" : "opacity-100"
       }`}
       data-testid="splash-screen"
@@ -23,15 +23,15 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
         <img 
           src="/logo.png" 
           alt="AuraVerse AI Logo" 
-          className="h-64 w-auto animate-[fadeInScale_1s_ease-in-out] purple-glow"
+          className="h-40 sm:h-48 md:h-56 lg:h-64 w-auto animate-[fadeInScale_1s_ease-in-out] purple-glow"
           data-testid="splash-logo"
         />
       </div>
       
-      <div className="mt-12 flex items-center gap-2">
-        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
-        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
-        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
+      <div className="mt-8 sm:mt-10 md:mt-12 flex items-center gap-2">
+        <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
+        <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
+        <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
       </div>
     </div>
   );

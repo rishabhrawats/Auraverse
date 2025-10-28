@@ -32,12 +32,21 @@ export function Sidebar({ user }: SidebarProps) {
   const { signOut } = useAuth();
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar border-r border-sidebar-border flex flex-col z-50">
-      {/* Logo */}
-      <div className="p-6 border-b border-sidebar-border">
-        <h1 className="text-xl font-bold text-sidebar-primary">AuraVerse AI</h1>
-        <p className="text-xs text-sidebar-foreground/70 mt-1">Build your legacy</p>
-      </div>
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:fixed lg:flex left-0 top-0 h-screen w-64 bg-sidebar border-r border-sidebar-border flex-col z-50">
+        {/* Logo */}
+        <div className="p-4 xl:p-6 border-b border-sidebar-border flex items-center gap-3">
+          <img 
+            src="/logo.png" 
+            alt="AuraVerse AI Logo" 
+            className="h-10 w-auto"
+          />
+          <div className="min-w-0">
+            <h1 className="text-lg xl:text-xl font-bold text-sidebar-primary truncate">AuraVerse AI</h1>
+            <p className="text-xs text-sidebar-foreground/70 mt-0.5">Build your legacy</p>
+          </div>
+        </div>
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -110,5 +119,31 @@ export function Sidebar({ user }: SidebarProps) {
         </div>
       </div>
     </aside>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-sidebar border-t border-sidebar-border z-50 safe-area-inset-bottom">
+        <div className="flex items-center justify-around px-2 py-2">
+          {navigation.slice(0, 5).map((item) => {
+            const isActive = location === item.href || location.startsWith(item.href + "/");
+            return (
+              <Link key={item.name} href={item.href}>
+                <div
+                  className={cn(
+                    "flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-smooth cursor-pointer min-w-[60px]",
+                    isActive
+                      ? "text-sidebar-primary bg-sidebar-accent"
+                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                  )}
+                  data-testid={`nav-mobile-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  <i className={`${item.icon} text-base`}></i>
+                  <span className="text-[10px] truncate max-w-[60px]">{item.name}</span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </>
   );
 }

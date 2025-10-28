@@ -35,7 +35,7 @@ function AuthenticatedApp() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Sidebar user={user || undefined} />
-      <main className="ml-64 min-h-screen">
+      <main className="lg:ml-64 min-h-screen">
         <Switch>
           <Route path="/" component={Dashboard} />
           <Route path="/dashboard" component={Dashboard} />

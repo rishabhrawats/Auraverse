@@ -104,45 +104,46 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted">
       {/* Hero Section */}
-      <div className="container mx-auto px-4 pt-20 pb-16">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <div className="flex justify-center mb-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 md:pt-20 pb-12 sm:pb-16">
+        <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
+          <div className="flex justify-center mb-6 sm:mb-8">
             <img 
               src="/logo.png" 
               alt="AuraVerse AI Logo" 
-              className="h-48 md:h-64 w-auto animate-[fadeIn_1s_ease-in-out] purple-glow-hover"
+              className="h-32 sm:h-40 md:h-48 lg:h-64 w-auto animate-[fadeIn_1s_ease-in-out] purple-glow-hover"
               data-testid="landing-logo"
             />
           </div>
           
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-sm font-medium text-primary">
-            <Zap className="h-4 w-4" />
-            AI-Powered Mental Wellness Platform
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full text-xs sm:text-sm font-medium text-primary">
+            <Zap className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden xs:inline">AI-Powered Mental Wellness Platform</span>
+            <span className="inline xs:hidden">AI Mental Wellness</span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-bold text-primary leading-tight" data-testid="text-landing-title">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-primary leading-tight px-4" data-testid="text-landing-title">
             Mental Wellness
             <br />
             Built for Founders
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto" data-testid="text-landing-subtitle">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto px-4" data-testid="text-landing-subtitle">
             Track your effectiveness in real-time, access AI-coached therapeutic programs, and achieve peak mental performance
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center pt-4 px-4">
             <Button 
               size="lg" 
-              className="text-lg px-8 py-6 h-14 bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
+              className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 h-12 sm:h-14 w-full sm:w-auto bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
               onClick={() => setLocation('/onboarding')}
               data-testid="button-start-free"
             >
-              Start Free Trial <Sparkles className="ml-2 h-5 w-5" />
+              Start Free Trial <Sparkles className="ml-2 h-4 sm:h-5 w-4 sm:w-5" />
             </Button>
             <Button 
               size="lg" 
               variant="outline"
-              className="text-lg px-8 py-6 h-14"
+              className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 h-12 sm:h-14 w-full sm:w-auto"
               onClick={() => setLocation('/signin')}
               data-testid="button-signin"
             >
@@ -150,44 +151,45 @@ export default function Landing() {
             </Button>
           </div>
 
-          <div className="flex items-center justify-center gap-8 pt-8 text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 md:gap-8 pt-6 sm:pt-8 text-xs sm:text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-green-500" />
-              Client-side encryption
+              <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
+              <span>Client-side encryption</span>
             </div>
             <div className="flex items-center gap-2">
-              <Lock className="h-4 w-4 text-green-500" />
-              HIPAA compliant
+              <Lock className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
+              <span>HIPAA compliant</span>
             </div>
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-green-500" />
-              Trusted by 1000+ founders
+              <Users className="h-3 w-3 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
+              <span className="hidden sm:inline">Trusted by 1000+ founders</span>
+              <span className="inline sm:hidden">1000+ founders</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Features Grid */}
-      <div className="container mx-auto px-4 py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
+        <div className="text-center mb-12 sm:mb-16 px-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-3 sm:mb-4">
             Everything You Need to Thrive
           </h2>
-          <p className="text-lg text-foreground max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-foreground max-w-2xl mx-auto">
             A comprehensive mental wellness platform designed specifically for the unique challenges of entrepreneurship
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-6xl mx-auto">
           {features.map((feature, idx) => (
-            <Card key={idx} className="p-6 bg-card border-border hover:border-primary/50 transition-all hover:shadow-lg" data-testid={`feature-${idx}`}>
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-primary/10 rounded-lg text-primary">
+            <Card key={idx} className="p-4 sm:p-6 bg-card border-border hover:border-primary/50 transition-all hover:shadow-lg" data-testid={`feature-${idx}`}>
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="p-2 sm:p-3 bg-primary/10 rounded-lg text-primary flex-shrink-0">
                   {feature.icon}
                 </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-2 text-primary">{feature.title}</h3>
-                  <p className="text-foreground text-sm leading-relaxed">{feature.description}</p>
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-base sm:text-lg mb-1 sm:mb-2 text-primary">{feature.title}</h3>
+                  <p className="text-foreground text-xs sm:text-sm leading-relaxed">{feature.description}</p>
                 </div>
               </div>
             </Card>
@@ -196,21 +198,21 @@ export default function Landing() {
       </div>
 
       {/* Pricing Section */}
-      <div className="container mx-auto px-4 py-20 bg-muted/30">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 bg-muted/30">
+        <div className="text-center mb-12 sm:mb-16 px-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-3 sm:mb-4">
             Simple, Transparent Pricing
           </h2>
-          <p className="text-lg text-foreground max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-foreground max-w-2xl mx-auto">
             Choose the plan that fits your mental wellness journey
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
           {pricingTiers.map((tier, idx) => (
             <Card 
               key={idx} 
-              className={`p-8 relative ${tier.popular ? 'border-primary border-2 shadow-xl scale-105' : 'border-border'}`}
+              className={`p-6 sm:p-8 relative ${tier.popular ? 'border-primary border-2 shadow-xl md:scale-105' : 'border-border'}`}
               data-testid={`pricing-${tier.name.toLowerCase()}`}
             >
               {tier.popular && (
