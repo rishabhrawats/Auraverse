@@ -26,6 +26,16 @@ Preferred communication style: Simple, everyday language.
 - Logo prominently displayed in header, landing page, and splash screen
 - Splash screen shown on first visit with animated logo reveal
 
+**Mobile Responsiveness:**
+- **Breakpoints**: Mobile < 640px (sm), Tablet 640px-1024px (md/lg), Desktop ≥ 1024px (lg/xl)
+- **Landing Page**: Fully responsive with adaptive typography, stacked CTAs on mobile, 1-column mobile → 2-column tablet → 3-column desktop grids
+- **Navigation**: 
+  - Desktop (≥1024px): Fixed left sidebar with all navigation items and user profile
+  - Mobile (<1024px): Bottom navigation bar with 5 key items (Dashboard, AI Oracle, Programs, Zen Mode, Journal)
+- **Header**: Responsive logo sizing (h-8 on mobile → h-12 on desktop), search bar hidden on mobile (icon-only)
+- **Content Padding**: Global mobile padding-bottom (5rem) prevents overlap with bottom navigation
+- **All Pages**: Optimized for touch targets and no horizontal scrolling on any screen size
+
 ## System Architecture
 
 ### Frontend Architecture
