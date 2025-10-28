@@ -1,0 +1,312 @@
+Project Structure
+
+A modern React/Next.js project might be organised as follows:
+
+auraverse-ai/
+├─ .env.local                 # API keys and secrets
+├─ next.config.js             # Next.js configuration (or vite.config.js for Vite)
+├─ tailwind.config.js         # Tailwind CSS configuration with custom colours
+├─ pages/
+│   ├─ index.tsx              # Landing page with hero, features, pricing
+│   ├─ signin.tsx             # Sign-in form with password toggle & OAuth buttons
+│   ├─ signup.tsx             # Sign-up form with name, email, password
+│   ├─ reset-password.tsx     # Request password reset
+│   ├─ reset/[token].tsx      # Reset form using token
+│   ├─ dashboard/
+│   │   ├─ index.tsx          # Authenticated user dashboard
+│   │   ├─ oracle.tsx         # AI Oracle chat page/component
+│   │   └─ media-analysis.tsx # Media analysis uploader
+│   └─ api/                   # API routes (Next.js API routes)
+│       ├─ auth/
+│       │   ├─ [...nextauth].ts # NextAuth configuration with Google/LinkedIn
+│       │   ├─ signup.ts        # Custom sign-up handler
+│       │   ├─ reset-request.ts # Handle reset password request
+│       │   └─ reset.ts         # Update password using token
+│       ├─ oracle.ts          # Proxy to OpenAI API for Oracle
+│       └─ media.ts           # Media analysis proxy
+└─ components/
+    ├─ AuthButton.tsx         # Sign-in/sign-out buttons
+    ├─ PasswordField.tsx      # Show/hide password input
+    ├─ ChatBotWidget.tsx      # Persistent conversational assistant
+    └─ ...
+
+Environment Variables (.env.local)
+# OpenAI/Anthropic
+OPENAI_API_KEY=your-openai-key
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# LinkedIn OAuth
+LINKEDIN_CLIENT_ID=your-linkedin-client-id
+LINKEDIN_CLIENT_SECRET=your-linkedin-client-secret
+
+# SMTP details for password reset emails
+SMTP_HOST=smtp.mailprovider.com
+SMTP_PORT=587
+SMTP_USER=example@example.com
+SMTP_PASS=your-password
+
+NEXTAUTH_URL=https://auraverse-ai.com
+NEXTAUTH_SECRET=a-random-secret
+
+Tailwind Colour Palette (tailwind.config.js)
+module.exports = {
+  content: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        primary: '#071128',       // dark navy background
+        secondary: '#361A4B',     // rich purple for accents
+        accentStart: '#F39C2D',   // warm orange (gradient start)
+        accentEnd: '#F7D17A',     // soft gold (gradient end)
+        neutral: '#D1A05B',       // beige for secondary text
+      },
+    },
+  },
+  plugins: [],
+};
+
+
+You can apply gradients in CSS using these colours, for example:
+
+.btn-primary {
+  background-image: linear-gradient(to right, theme('colors.accentStart'), theme('colors.accentEnd'));
+}
+
+Password Field Component (components/PasswordField.tsx)
+import { useState } from 'react';
+
+interface PasswordFieldProps {
+  id: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+}
+
+export function PasswordField({ id, value, onChange, placeholder }: PasswordFieldProps) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <input
+        id={id}
+        type={show ? 'text' : 'password'}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full p-3 border rounded bg-white text-black"
+      />
+      <button
+        type="button"
+        aria-label={show ? 'Hide password' : 'Show password'}
+        onClick={() => setShow(!show)}
+        className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500"
+      >
+        {show ? '🙈' : '👁️'}
+      </button>
+    </div>
+  );
+}
+
+Sign-In Page (pages/signin.tsx)
+import { signIn } from 'next-auth/react';
+import { useState } from 'react';
+import { PasswordField } from '../components/PasswordField';
+
+export default function SignIn() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const res = await signIn('credentials', {
+      redirect: false,
+      email,
+      password,
+    });
+    setLoading(false);
+    if (res?.error) {
+      alert(res.error);
+    }
+  };
+
+  return (
+    <div className="max-w-md mx-auto mt-10 text-center space-y-4">
+      <h1 className="text-3xl font-bold">Sign in to AuraVerse AI</h1>
+      <button onClick={() => signIn('google')} className="btn-primary w-full">Continue with Google</button>
+      <button onClick={() => signIn('linkedin')} className="btn-secondary w-full">Continue with LinkedIn</button>
+      <hr className="my-4" />
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="email"
+          required
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-3 border rounded"
+        />
+        <PasswordField
+          id="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <div className="flex justify-between items-center text-sm">
+          <a href="/reset-password" className="text-blue-600 hover:underline">Forgot your password?</a>
+          <button type="submit" className="btn-primary" disabled={loading}>Sign In</button>
+        </div>
+      </form>
+      <p className="text-sm">
+        Don’t have an account?{' '}
+        <a href="/signup" className="text-blue-600 hover:underline">Sign up</a>
+      </p>
+    </div>
+  );
+}
+
+NextAuth Configuration (pages/api/auth/[...nextauth].ts)
+import NextAuth from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
+import LinkedInProvider from 'next-auth/providers/linkedin';
+import CredentialsProvider from 'next-auth/providers/credentials';
+
+export default NextAuth({
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    LinkedInProvider({
+      clientId: process.env.LINKEDIN_CLIENT_ID!,
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+    }),
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials, req) {
+        // TODO: verify credentials with your database
+        const user = await verifyUser(credentials.email, credentials.password);
+        if (user) return user;
+        return null;
+      },
+    }),
+  ],
+  secret: process.env.NEXTAUTH_SECRET,
+  session: { strategy: 'jwt' },
+  pages: {
+    signIn: '/signin',
+    signOut: '/',
+    error: '/signin',
+  },
+});
+
+async function verifyUser(email: string, password: string) {
+  // Implement password check against your DB
+  return { id: '123', name: 'User', email };
+}
+
+AI Oracle Route (pages/api/oracle.ts)
+import { NextApiRequest, NextApiResponse } from 'next';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).end('Method not allowed');
+  }
+  const { prompt } = req.body;
+  if (!prompt) {
+    return res.status(400).json({ error: 'Prompt is required' });
+  }
+  try {
+    const completion = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: 'You are a mental-health assistant for entrepreneurs. Do not provide clinical diagnosis.' },
+          { role: 'user', content: prompt },
+        ],
+      }),
+    });
+    if (!completion.ok) {
+      const text = await completion.text();
+      return res.status(completion.status).json({ error: text });
+    }
+    const data = await completion.json();
+    const answer = data.choices[0].message.content;
+    return res.status(200).json({ answer });
+  } catch (error) {
+    return res.status(500).json({ error: 'Oracle service error' });
+  }
+}
+
+Media Analysis Endpoint (pages/api/media.ts)
+import { NextApiRequest, NextApiResponse } from 'next';
+
+export const config = {
+  api: {
+    bodyParser: false, // Allow file uploads
+  },
+};
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).end('Method not allowed');
+  }
+  // Here you would parse the form-data using a library like formidable
+  const { file, mediaType, duration } = await parseFormData(req);
+  if (!file || !mediaType) {
+    return res.status(400).json({ error: 'Media type and duration are required' });
+  }
+  try {
+    const analysis = await callYourMediaAnalysisAPI(file, mediaType, duration);
+    return res.status(200).json({ analysis });
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to analyse media' });
+  }
+}
+
+async function parseFormData(req: NextApiRequest) {
+  // Implement file parsing: return { file, mediaType, duration }
+  return {} as any;
+}
+
+async function callYourMediaAnalysisAPI(file: any, mediaType: string, duration: number) {
+  // Connect to your ML/AI media analysis service
+  return { mood: 'calm' };
+}
+
+Deployment Tips
+
+Use Replit Secrets to store environment variables; never commit API keys. In .replit or Replit’s Secrets tab, map each variable.
+
+Configure vercel or node server – If deploying on Replit or Vercel, ensure serverless functions are supported, or set up a Node server with Express if using Vite.
+
+Check OAuth callback URLs – Register https://<your-replit-URL>/api/auth/callback/google and similar for LinkedIn in the respective developer consoles.
+
+Database – This guide assumes a backing database (Supabase, MongoDB, Postgres) for storing users, sessions, journals, metrics, etc. Use ORM tools like Prisma for type safety.
+
+Testing & CI – Implement unit tests for API routes and integration tests using Playwright or Cypress to ensure sign‑in, sign‑up, password reset, and AI calls work end‑to‑end.
+
+How to Improve Further
+
+Accessibility – Add aria-labels on buttons and inputs, ensure proper colour contrast, and use keyboard‑navigable components.
+
+Server‑side rendering – Use Next.js SSR for improved SEO on marketing pages.
+
+Analytics & Monitoring – Integrate a privacy‑friendly analytics tool (e.g., Plausible) and error monitoring (e.g., Sentry).
+
+Internationalization – Add support for multiple languages by abstracting text into translation files.
+
+Micro‑interactions – Use Framer Motion or CSS animations for subtle transitions, aligning with the brand palette.
+
+This code outline, combined with the final PRD, offers a roadmap for implementing the AuraVerse.ai application with working authentication, password management, AI integrations, and an aligned visual design using your logo and colour palette.
