@@ -4,42 +4,43 @@
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 0%;
+  /* Purple Background Theme with White/Black Text */
+  --background: 270 50% 12%;
   --foreground: 0 0% 100%;
-  --card: 0 0% 5%;
+  --card: 270 45% 16%;
   --card-foreground: 0 0% 100%;
-  --popover: 0 0% 5%;
+  --popover: 270 45% 18%;
   --popover-foreground: 0 0% 100%;
   --primary: 270 75% 65%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 10%;
+  --secondary: 270 40% 25%;
   --secondary-foreground: 0 0% 100%;
-  --muted: 0 0% 15%;
-  --muted-foreground: 0 0% 70%;
-  --accent: 0 0% 8%;
+  --muted: 270 35% 22%;
+  --muted-foreground: 0 0% 75%;
+  --accent: 270 60% 30%;
   --accent-foreground: 0 0% 100%;
   --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
-  --border: 0 0% 20%;
-  --input: 0 0% 15%;
+  --border: 270 30% 30%;
+  --input: 270 40% 20%;
   --ring: 270 75% 65%;
   --chart-1: 270 75% 65%;
-  --chart-2: 173 80% 50%;
-  --chart-3: 197 92% 61%;
-  --chart-4: 43 90% 70%;
-  --chart-5: 27 87% 67%;
-  --sidebar: 0 0% 0%;
+  --chart-2: 280 70% 60%;
+  --chart-3: 260 80% 70%;
+  --chart-4: 290 65% 55%;
+  --chart-5: 250 75% 60%;
+  --sidebar: 270 55% 10%;
   --sidebar-foreground: 0 0% 100%;
   --sidebar-primary: 270 75% 65%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 0 0% 10%;
+  --sidebar-accent: 270 45% 18%;
   --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-border: 0 0% 20%;
+  --sidebar-border: 270 30% 25%;
   --sidebar-ring: 270 75% 65%;
   --font-sans: 'Inter', sans-serif;
   --font-serif: 'Inter', sans-serif;
   --font-mono: Menlo, monospace;
-  --radius: 0.5rem;
+  --radius: 0.75rem;
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 }
@@ -90,9 +91,9 @@
     50% { transform: scale(1.1); opacity: 0.7; }
   }
 
-  /* Gradient animations */
+  /* Gradient animations - Purple theme */
   .gradient-animate {
-    background: linear-gradient(135deg, hsl(270, 70%, 60%), hsl(280, 65%, 55%), hsl(45, 90%, 60%));
+    background: linear-gradient(135deg, hsl(270, 75%, 65%), hsl(280, 70%, 60%), hsl(260, 80%, 70%));
     background-size: 200% 200%;
     animation: gradient-shift 8s ease infinite;
   }
@@ -116,17 +117,18 @@
     box-shadow: 0 0 30px hsl(45, 90%, 60%, 0.4), 0 0 60px hsl(45, 90%, 60%, 0.2);
   }
 
-  /* Purple glow effect */
+  /* Purple glow effect - Enhanced */
   .purple-glow {
-    box-shadow: 0 0 20px hsl(270, 70%, 60%, 0.3), 0 0 40px hsl(270, 70%, 60%, 0.1);
+    box-shadow: 0 0 25px hsl(270, 75%, 65%, 0.4), 0 0 50px hsl(270, 75%, 65%, 0.2);
   }
 
   .purple-glow-hover {
-    transition: box-shadow 0.3s ease;
+    transition: all 0.3s ease;
   }
 
   .purple-glow-hover:hover {
-    box-shadow: 0 0 30px hsl(270, 70%, 60%, 0.4), 0 0 60px hsl(270, 70%, 60%, 0.2);
+    box-shadow: 0 0 35px hsl(270, 75%, 65%, 0.5), 0 0 70px hsl(270, 75%, 65%, 0.3);
+    transform: translateY(-2px);
   }
 
   /* Fade in animation */
@@ -179,20 +181,55 @@
     transition: all 200ms ease-in-out;
   }
 
-  /* Glassmorphism effect */
+  /* Glassmorphism effect - Purple theme */
   .glass {
-    background: rgba(139, 92, 246, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(244, 196, 48, 0.2);
+    background: rgba(167, 139, 250, 0.15);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(167, 139, 250, 0.3);
   }
 
-  /* Hover lift effect */
+  /* Hover lift effect - Purple theme */
   .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px -10px hsl(270 75% 65% / 0.4);
+  }
+
+  /* Card styles with purple theme */
+  .card-modern {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: 0 4px 20px -4px hsl(270 75% 65% / 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .card-modern:hover {
+    box-shadow: 0 8px 30px -6px hsl(270 75% 65% / 0.2);
+    border-color: hsl(270 75% 65% / 0.5);
+  }
+
+  /* Button styles */
+  .btn-primary {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 14px 0 hsl(270 75% 65% / 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 6px 20px 0 hsl(270 75% 65% / 0.5);
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px -10px hsl(45 90% 60% / 0.3);
+  }
+
+  /* Scrollbar enhancement */
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(270 80% 70%);
   }
 }
