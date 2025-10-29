@@ -722,18 +722,42 @@ Focus on:
 
 Keep responses concise (2-3 paragraphs), supportive, and actionable.`;
 
-      // Try OpenAI first, fallback to Anthropic
+      // Try OpenAI first, fallback to Anthropic, then provide helpful default
       let answer;
       try {
         answer = await generateOracleResponse(question, systemPrompt);
       } catch (openaiError) {
-        // Fallback to Anthropic
-        answer = await generateOracleResponseFallback(question, systemPrompt);
+        console.log('OpenAI unavailable, trying Anthropic...');
+        try {
+          answer = await generateOracleResponseFallback(question, systemPrompt);
+        } catch (anthropicError) {
+          console.log('Both AI providers unavailable, using default response');
+          // Provide a helpful default response when both APIs are unavailable
+          answer = `I'm currently experiencing technical difficulties connecting to AI services. However, I can offer some general guidance:
+
+For mental wellness as a founder, consider these evidence-based approaches:
+1. **Structured breaks**: Use the Pomodoro technique (25 min work, 5 min break) to maintain focus and prevent burnout.
+2. **Journaling**: Regular reflection helps process stress and gain clarity on decisions.
+3. **Physical activity**: Even 15 minutes of movement can significantly reduce stress hormones.
+4. **Social connection**: Don't isolate - reach out to fellow founders or mentors who understand your journey.
+
+Based on your current state (${eiContext?.state || 'REGULATED'}), ${
+  eiContext?.state === 'FREEZE' ? 'focus on small, achievable tasks to build momentum.' :
+  eiContext?.state === 'FLIGHT' ? 'prioritize recovery time and stress management techniques.' :
+  eiContext?.state === 'FIGHT' ? 'work on decision-making frameworks and strategic clarity.' :
+  'keep maintaining your balanced approach.'
+}
+
+Please try asking your question again in a few moments when AI services are restored.`;
+        }
       }
 
       res.json({ answer });
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      console.error('Oracle route error:', error);
+      res.status(500).json({ 
+        error: 'Unable to process your question at this time. Please try again shortly.' 
+      });
     }
   });
 
