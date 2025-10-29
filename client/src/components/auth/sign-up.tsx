@@ -47,16 +47,35 @@ export default function SignUp() {
       const onboardingDataStr = sessionStorage.getItem('onboarding_data');
       if (onboardingDataStr) {
         const onboardingData = JSON.parse(onboardingDataStr);
-        apiRequest("POST", "/api/onboarding/complete", {
-          ...onboardingData,
-          consent: true,
-          timezone: onboardingData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
-        }).then(() => {
+        fetch("/api/onboarding/complete", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            ...onboardingData,
+            consent: true,
+            timezone: onboardingData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+          }),
+        }).then(async (response) => {
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "Onboarding failed");
+          }
           sessionStorage.removeItem('onboarding_data');
           toast({
             title: "Welcome to AuraVerse!",
             description: "Your account has been created successfully.",
           });
+          window.location.href = "/dashboard";
+        }).catch((error) => {
+          toast({
+            title: "Onboarding Failed",
+            description: error instanceof Error ? error.message : "Please complete your profile from settings.",
+            variant: "destructive",
+          });
+          // Don't clear session storage so user can retry
           window.location.href = "/dashboard";
         });
       } else {
@@ -86,22 +105,40 @@ export default function SignUp() {
       const onboardingData = onboardingDataStr ? JSON.parse(onboardingDataStr) : {};
 
       // Register user
-      const response = await apiRequest("POST", "/api/auth/register", data);
-      const result = await response.json();
+      const registerResponse = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
       
-      if (!response.ok) {
-        throw new Error(result.error || "Registration failed");
+      if (!registerResponse.ok) {
+        const error = await registerResponse.json();
+        throw new Error(error.error || "Registration failed");
       }
 
+      const result = await registerResponse.json();
       localStorage.setItem("auth_token", result.token);
 
       // Complete onboarding with stored data
       if (Object.keys(onboardingData).length > 0) {
-        await apiRequest("POST", "/api/onboarding/complete", {
-          ...onboardingData,
-          consent: true,
-          timezone: onboardingData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+        const onboardingResponse = await fetch("/api/onboarding/complete", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${result.token}`,
+          },
+          body: JSON.stringify({
+            ...onboardingData,
+            consent: true,
+            timezone: onboardingData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+          }),
         });
+
+        if (!onboardingResponse.ok) {
+          const error = await onboardingResponse.json();
+          throw new Error(error.error || "Onboarding failed");
+        }
+
         sessionStorage.removeItem('onboarding_data');
       }
 

@@ -451,7 +451,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           aiResponse = await generateProgramStep(stepRequest);
         } catch (openaiError) {
           console.warn('OpenAI failed, trying Anthropic:', openaiError);
-          aiResponse = await generateProgramStepFallback(stepRequest);
+          try {
+            aiResponse = await generateProgramStepFallback(stepRequest);
+          } catch (anthropicError) {
+            console.warn('Both AI providers failed, using default program step');
+            // Provide a default program step when both APIs fail
+            aiResponse = {
+              title: `Day ${stepRequest.day}: Mindful Reflection`,
+              steps: [
+                'Take 5 deep breaths to center yourself',
+                'Reflect on one challenge you faced today',
+                'Identify one small action you can take tomorrow',
+                'Journal about your feelings and progress',
+                'Acknowledge one thing you did well today'
+              ],
+              reflectionQuestion: 'What did you learn about yourself today?',
+              microCelebration: 'You showed up for yourself today - that matters.',
+              estimatedDuration: 10
+            };
+          }
         }
 
         const nextStep = await storage.createProgramStep({
