@@ -35,14 +35,14 @@ export default function MediaAnalysis() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/media'] });
       toast({
-        title: 'Analysis Complete',
-        description: 'Your mental wellness analysis is ready',
+        title: 'Reflection Analysis Complete',
+        description: 'Your growth analysis is ready to review',
       });
     },
     onError: (error: any) => {
       toast({
-        title: 'Analysis Failed',
-        description: error.message || 'Failed to analyze your session',
+        title: 'Reflection Analysis Failed',
+        description: error.message || 'Failed to complete your reflection analysis',
         variant: 'destructive',
       });
     },
@@ -157,10 +157,10 @@ export default function MediaAnalysis() {
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <Brain className="h-8 w-8 text-primary" />
-              Voice & Video Analysis
+              Before-After Reflection Analysis
             </h1>
             <p className="text-muted-foreground mt-2">
-              Real-time mental wellness assessment through AI-powered voice and video analysis
+              Visualize your growth over time through AI-powered analysis of emotional tone, speech patterns, and expressions
             </p>
           </div>
 
@@ -172,7 +172,7 @@ export default function MediaAnalysis() {
                 Capture Session
               </CardTitle>
               <CardDescription>
-                Record voice or video for AI-powered mental wellness analysis
+                Record voice or video to track your emotional growth and see how you've progressed
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -275,7 +275,7 @@ export default function MediaAnalysis() {
           <div>
             <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
               <TrendingUp className="h-6 w-6 text-primary" />
-              Analysis History
+              Growth Journey
             </h2>
 
             {isLoading ? (
@@ -286,8 +286,8 @@ export default function MediaAnalysis() {
               <Card>
                 <CardContent className="py-12 text-center">
                   <Brain className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                  <p className="text-muted-foreground">No analysis sessions yet</p>
-                  <p className="text-sm text-muted-foreground mt-1">Start recording to get AI-powered wellness insights</p>
+                  <p className="text-muted-foreground">No reflection sessions yet</p>
+                  <p className="text-sm text-muted-foreground mt-1">Start recording to visualize your growth over time</p>
                 </CardContent>
               </Card>
             ) : (
