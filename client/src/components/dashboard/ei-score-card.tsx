@@ -22,7 +22,7 @@ export function EIScoreCard({
     <Card className="bg-card border-border purple-glow-hover" data-testid="card-ei-score">
       <CardContent className="p-6">
         <h3 className="text-lg font-semibold text-primary mb-4" data-testid="text-ei-title">
-          Effectiveness Score
+          Resilience Score
         </h3>
         
         {/* EI Score Circle */}

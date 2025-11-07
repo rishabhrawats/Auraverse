@@ -59,7 +59,7 @@ export function SubIndices({ currentEI }: SubIndicesProps) {
   return (
     <div>
       <h3 className="text-lg font-semibold text-primary mb-4" data-testid="text-sub-indices-title">
-        Effectiveness Sub-Indices
+        Resilience Sub-Indices
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {subIndexInfo.map((index) => {

@@ -13,26 +13,26 @@ interface TourStep {
 const tourSteps: TourStep[] = [
   {
     target: '[data-testid="card-ei-score"]',
-    title: "Effectiveness Index",
-    description: "Your real-time mental wellness score based on 6 metrics: Focus Efficiency, Recovery Latency, Decision Clarity, Emotion Regulation, Support Utilization, and Strategic Momentum.",
+    title: "Resilience Index (RI)",
+    description: "Your real-time mental resilience score based on 6 metrics: Focus Efficiency, Recovery Latency, Decision Clarity, Emotion Regulation, Support Utilization, and Strategic Momentum.",
     position: 'left'
   },
   {
     target: '[data-testid="card-today"]',
     title: "Today's Focus",
-    description: "Complete your daily program step and quickly start a 25-minute Zen session with breathing overlay and distraction guard.",
+    description: "Complete your daily BOSS sprint step and quickly start a 25-minute Zen session with breathing overlay and distraction guard.",
     position: 'bottom'
   },
   {
     target: '[data-testid="nav-ai-oracle"]',
-    title: "AI Oracle",
-    description: "Ask questions about your mental wellness, get personalized insights, and receive AI-coached guidance.",
+    title: '"Oracle" AI Mentor',
+    description: "Your trusted AI mentor for personalized guidance, resilience insights, and founder-specific mental performance coaching.",
     position: 'right'
   },
   {
     target: '[data-testid="nav-programs"]',
-    title: "Therapeutic Programs",
-    description: "Browse AI-generated therapeutic programs tailored to your venture stage, stressors, and archetype.",
+    title: "BOSS Sprints",
+    description: "5-7 day Behavioral Optimization Sprint System programs that transform behavior through real-time reflection, action, and feedback.",
     position: 'right'
   },
   {
@@ -50,7 +50,7 @@ const tourSteps: TourStep[] = [
   {
     target: '[data-testid="nav-insights"]',
     title: "Insights & Analytics",
-    description: "Explore correlations between your EI scores, calendar patterns, and mental wellness trends.",
+    description: "Explore correlations between your Resilience Index (RI) scores, calendar patterns, and mental performance trends.",
     position: 'right'
   }
 ];

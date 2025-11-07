@@ -74,8 +74,8 @@ export default function Insights() {
   return (
     <>
       <Header 
-        title="Effectiveness Insights" 
-        subtitle="Track your effectiveness trends and correlations"
+        title="Resilience Insights" 
+        subtitle="Track your Resilience Index (RI) trends and correlations"
       />
       
       <div className="max-w-7xl mx-auto px-8 py-8 space-y-8">
@@ -97,7 +97,7 @@ export default function Insights() {
         <Card className="bg-card border-border">
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold text-foreground mb-6" data-testid="text-ei-trend-title">
-              Effectiveness Score Trend
+              Resilience Score Trend
             </h3>
             
             {eiTrend && eiTrend.length > 0 ? (
@@ -106,7 +106,7 @@ export default function Insights() {
               <div className="h-64 flex items-center justify-center text-muted-foreground">
                 <div className="text-center">
                   <i className="fas fa-chart-line text-4xl mb-4 opacity-50"></i>
-                  <p>No EI data available for the selected time period</p>
+                  <p>No RI data available for the selected time period</p>
                 </div>
               </div>
             )}
@@ -161,7 +161,7 @@ export default function Insights() {
                   <div key={index} className="border-b border-border last:border-b-0 pb-4 last:pb-0">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-foreground" data-testid={`text-insight-metric-${index}`}>
-                        EI Score vs {insight.metric}
+                        RI Score vs {insight.metric}
                       </span>
                       <span className={`text-sm font-medium ${
                         insight.correlation > 0.3 ? 'text-chart-2' : 
