@@ -58,7 +58,7 @@ export default function Landing() {
     },
     {
       icon: <Video className="h-8 w-8" />,
-      title: "Before–After Reflection",
+      title: "Before-After Reflection Analysis",
       subtitle: "Growth Visualization",
       description: "AI analyzes emotional tone, speech, and expression shifts from your journal or video entries to visualize growth over time.",
       gradient: "from-indigo-500 to-purple-500"

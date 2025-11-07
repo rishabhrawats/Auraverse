@@ -10,7 +10,7 @@ const navigation = [
   { name: "BOSS", href: "/programs", icon: "fas fa-brain" },
   { name: "Zen Mode", href: "/zen", icon: "fas fa-spa" },
   { name: "Journal", href: "/journal", icon: "fas fa-lock" },
-  { name: "Reflection Analysis", href: "/media-analysis", icon: "fas fa-microphone" },
+  { name: "Before-After Reflection Analysis", href: "/media-analysis", icon: "fas fa-microphone" },
   { name: "Insights", href: "/insights", icon: "fas fa-chart-bar" },
 ];
 
@@ -137,7 +137,7 @@ export function Sidebar({ user }: SidebarProps) {
                   data-testid={`nav-mobile-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
                 >
                   <i className={`${item.icon} text-sm`}></i>
-                  <span className="text-[9px] truncate max-w-[50px] leading-tight text-center">{item.name === 'Media Analysis' ? 'Media' : item.name}</span>
+                  <span className="text-[9px] truncate max-w-[50px] leading-tight text-center">{item.name === 'Before-After Reflection Analysis' ? 'Reflection' : item.name}</span>
                 </div>
               </Link>
             );
