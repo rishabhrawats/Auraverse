@@ -78,13 +78,13 @@ export default function Programs() {
       queryClient.invalidateQueries({ queryKey: ["/api/programs"] });
       const program = AVAILABLE_PROGRAMS.find(p => p.code === programCode);
       toast({
-        title: "Program Started!",
-        description: `${program?.title} has been added to your active programs.`,
+        title: "BOSS Sprint Started!",
+        description: `${program?.title} sprint has been activated.`,
       });
     },
     onError: (error) => {
       toast({
-        title: "Failed to Start Program",
+        title: "Failed to Start BOSS Sprint",
         description: error.message,
         variant: "destructive",
       });
@@ -100,7 +100,7 @@ export default function Programs() {
     if (!canStartMultiplePrograms && hasActivePrograms) {
       toast({
         title: "Upgrade Required",
-        description: "Upgrade to Pro to run multiple programs simultaneously.",
+        description: "Upgrade to Growth Plan to run multiple BOSS sprints simultaneously.",
         variant: "destructive",
       });
       return;
@@ -120,8 +120,8 @@ export default function Programs() {
   return (
     <>
       <Header 
-        title="AI Assistance-based Programs" 
-        subtitle="Evidence-backed micro-skills delivered through supportive AI coaching"
+        title="BOSS - Behavioral Optimization Sprint System" 
+        subtitle="5-7 day guided micro-programs that transform behavior through real-time reflection, action, and feedback"
       />
       
       <div className="max-w-7xl mx-auto px-8 py-8 space-y-8">
@@ -129,7 +129,7 @@ export default function Programs() {
         {hasActivePrograms && (
           <div>
             <h3 className="text-lg font-semibold text-foreground mb-4" data-testid="text-active-programs">
-              Active Programs
+              Active BOSS Sprints
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {activePrograms.map((assignment) => {
@@ -180,7 +180,7 @@ export default function Programs() {
                         variant="default"
                         data-testid={`button-continue-program-${assignment.id}`}
                       >
-                        Continue Program
+                        Continue Sprint
                       </Button>
                     </CardContent>
                   </Card>
@@ -193,7 +193,7 @@ export default function Programs() {
         {/* Available Programs */}
         <div>
           <h3 className="text-lg font-semibold text-foreground mb-4" data-testid="text-available-programs">
-            Available Programs
+            Available BOSS Sprints
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {AVAILABLE_PROGRAMS.map((program) => {
@@ -224,9 +224,9 @@ export default function Programs() {
                     <i className="fas fa-rocket text-chart-5 text-2xl"></i>
                   </div>
                   
-                  <h3 className="text-lg font-semibold text-foreground mb-2">Multi-Program Sprint</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Multi-Sprint Mode</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Run multiple programs simultaneously for accelerated progress
+                    Run multiple BOSS sprints simultaneously for accelerated progress
                   </p>
                   
                   <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
@@ -249,21 +249,24 @@ export default function Programs() {
         {/* Program Information */}
         <Card className="bg-card border-border">
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">About AI Assistance-based Programs</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-4">About BOSS Sprints</h3>
             <div className="space-y-4 text-sm text-muted-foreground">
               <p>
-                Our programs use evidence-based therapeutic approaches (CBT, ACT, DBT) delivered through 
-                supportive AI coaching. Each program is designed specifically for entrepreneurs and founders, 
+                BOSS (Behavioral Optimization Sprint System) sprints use evidence-based therapeutic approaches (CBT, ACT, DBT) delivered through 
+                supportive AI coaching. Each 5-7 day sprint is designed specifically for entrepreneurs and founders, 
                 focusing on practical skills you can use immediately.
               </p>
               <p>
-                <strong className="text-foreground">Not prescriptive therapy:</strong> These programs provide 
+                <strong className="text-foreground">Not prescriptive therapy:</strong> BOSS sprints provide 
                 supportive, skills-based assistance with clear disclaimers. We focus on normalization, 
                 small wins, and founder-friendly language.
               </p>
               <p>
                 <strong className="text-foreground">Personalized delivery:</strong> Each session adapts to 
                 your avatar archetype, current state, venture stage, and calendar context for maximum relevance.
+              </p>
+              <p className="italic text-primary">
+                <strong>"Be your own BOSS."</strong> Transform behavior through real-time reflection, action, and feedback.
               </p>
             </div>
           </CardContent>
