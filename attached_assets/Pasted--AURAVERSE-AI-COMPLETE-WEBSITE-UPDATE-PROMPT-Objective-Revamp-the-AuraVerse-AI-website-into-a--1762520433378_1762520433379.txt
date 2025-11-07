@@ -1,0 +1,279 @@
+🌌 AURAVERSE AI – COMPLETE WEBSITE UPDATE PROMPT
+
+Objective:
+Revamp the AuraVerse-AI website into a sleek, emotionally intelligent, investor-ready platform that positions AuraVerse as the world’s first mental-performance OS for entrepreneurs, integrating AI mentorship, behavioral optimization sprints (BOSS), encrypted journaling, and resilience analytics — designed for founders, investors, and startup teams.
+
+🔷 1. HOMEPAGE
+Hero Section
+
+Replace headline with:
+“Building Resilient Minds for the World’s Founders.”
+
+Sub-headline:
+Measure, strengthen, and optimize your mental resilience through AI-powered mentorship and Behavioral Optimization Sprints (BOSS).
+
+CTA buttons:
+[Build Your Resilience] and [Take the 2-Minute Assessment]
+
+Background: dynamic gradient animation in purple–blue–gold palette, symbolizing balance of mind, body, and data.
+
+Subtle motion of breathing rhythm or wave pulse under CTA to evoke calm.
+
+About Section
+
+Headline: “Where Science Meets Self-Mastery.”
+Copy:
+AuraVerse AI blends neuroscience, AI, and foresight to empower entrepreneurs to lead with clarity and calm.
+Our mission is to make mental resilience measurable, actionable, and inspiring.
+Our vision is to help 10 million founders thrive by 2030.
+
+Insert a minimal timeline animation showing:
+
+Stress → Reflection → Insight → Growth → Resilience
+
+Core Tools Section
+
+Add five visual cards with hover animations:
+
+AI “Oracle” (Mentor)
+Your adaptive AI coach that listens, learns, and guides you through emotional and cognitive transitions.
+(Keep “Oracle” in quotes for branding; subtitle it “AI Mentor” for clarity.)
+
+BOSS — Behavioral Optimization Sprint System
+5–7-day guided micro-programs that transform behavior through real-time reflection, action, and feedback.
+Tagline: “Be your own BOSS.”
+
+Encrypted Journaling
+Voice, text, or video journals protected by military-grade encryption and private to you.
+Helps the AI mentor identify progress patterns safely.
+
+Resilience Index Dashboard
+Tracks your Resilience Score, Focus Efficiency, Recovery Latency, Decision Clarity, and Growth Adaptability.
+Offers weekly insights and AI-generated suggestions for optimization.
+
+Before–After Reflection Analysis
+AI analyzes emotional tone, speech, and expression shifts from your journal or video entries to visualize growth over time.
+
+Dashboard Preview Section
+
+Add an animated mock-up showing:
+
+Resilience Score (main KPI, circular gauge)
+
+Focus Efficiency (bar graph)
+
+Recovery Latency (timer visualization)
+
+Decision Clarity (clarity radar)
+
+Growth Adaptability (line progress trend)
+Include short tooltip animations for each metric.
+
+Why AuraVerse Works Section
+
+Three-column layout:
+
+AI-Driven Precision
+Adaptive, personalized mental health insights trained on thousands of behavioral patterns.
+
+Human-Assisted Wisdom
+Certified coaches, psychiatrists, and wellness experts review anonymized patterns for quality assurance.
+
+Ethical Intelligence
+HIPAA + GDPR compliant, emotion-safe AI that never diagnoses — it empowers.
+
+Pricing Section
+
+Display four clean tier cards (gradient accent color per tier):
+
+Plan	Price	Features Summary
+Basic Mind Starter	$5–$9/mo	Resilience Index, encrypted journaling, AI mentor access (text only)
+Growth Plan	$39–$99/mo	Adds BOSS sprints, voice mentoring, and full dashboard access
+Inclusive Plan	$299–$399/mo	Includes real coaches, wearables integration, 24/7 chat, premium analytics
+Elite Mind Architect (Notch Plan)	$999/mo	Fully customized plan: 1-on-1 sessions with psychiatrists, wellness coaches, and fitness experts matched to user personality
+
+Add note under pricing:
+
+“Every plan builds measurable resilience. The $999 tier offers human-AI synergy for elite founders and investors.”
+
+Ethical Gatekeeping & Safety Section
+
+Include a visual flow diagram:
+
+“We care about your safety.”
+
+If users mark suicidal or addiction-related issues during onboarding:
+
+Auto-redirect to local government helpline portals (based on IP geolocation).
+
+Prevent account continuation until the user receives support confirmation.
+
+Add line:
+
+“AuraVerse does not replace therapy. It complements it — ethically, responsibly, and compassionately.”
+
+Technology Section
+
+Headline: “Where AI Meets Empathy.”
+Show icons or micro-animations for:
+
+Voice & video sentiment analysis
+
+Wearable device integrations (Apple, Fitbit, Garmin)
+
+Real-time stress pattern mapping
+
+Secure encrypted data vault (AES-256)
+
+Add CTA: [Explore the Science]
+
+Partnership & Compliance Section
+
+Logos or placeholders for:
+
+École des Ponts Business School (research collaboration)
+
+ReTech Center for Futures Studies
+
+Government & Healthcare Partners
+
+Include badges:
+HIPAA Compliant • GDPR Ready • AI Ethics Verified • UNESCO Future Literacy Inspired
+
+Testimonials Section
+
+Rotate short quotes from founders and early users:
+
+“It’s like having a board advisor for your mental clarity.”
+“The BOSS sprints taught me to transform burnout into balance.”
+“Finally, a tool that treats mental health like performance science, not stigma.”
+
+Call-to-Action Footer
+
+Big banner:
+“Ready to Build Your Mental Resilience?”
+CTA Button: [Start Your Journey]
+Subtext: Confidential. Adaptive. Founder-First.
+
+🔷 2. DESIGN & UX UPDATES
+
+Color Palette: Royal purple (#5B2C6F), deep navy (#0A0A23), soft gold gradient (#C89A3C → #E5C174)
+
+Typography: Use Satoshi / Inter / DM Sans – modern, geometric, readable.
+
+Layout: Rounded-corner cards (radius 2xl), light shadows, breathing white space.
+
+Animation: Subtle hover glows, framer-motion transitions on sections.
+
+Use micro-interactions (e.g., hover on BOSS → shows sprint progress bar).
+
+Make AI avatar dynamic — can “breathe” or “listen” during hover for emotional resonance.
+
+Mobile first responsive design, dark-mode optional.
+
+🔷 3. PRODUCT & BACKEND FUNCTIONALITY INTEGRATION
+
+Implement OAuth (Google, LinkedIn, Apple) for secure login.
+
+Introduce two-factor authentication for $999 tier.
+
+Sync with wearables API for HRV, sleep, movement data.
+
+Add journaling storage via encrypted cloud (AWS S3 + AES-256).
+
+Integrate sentiment engine for journaling tone detection.
+
+Set up automatic triage API connecting to national hotlines (based on user region).
+
+Replace “Integration & Media Analysis” module with Before–After Reflection Analysis engine.
+
+Integrate billing gateway with all four plans (Stripe / Razorpay global mode).
+
+Introduce token-based micro-rewards for completing BOSS sprints (“Resilience Tokens”).
+
+🔷 4. CONTENT STRATEGY
+
+Rewrite all copy in the tone of confidence + compassion + futurism.
+Avoid “mental illness” phrasing — use “mental fitness,” “emotional adaptability,” “resilience training.”
+
+Add a dedicated Founders’ Mental Fitness Blog (for SEO and thought leadership).
+Categories: Founder Burnout, Decision Fatigue, Cognitive Agility, Foresight & Flow.
+
+Add storytelling content about real entrepreneurs’ growth journeys.
+
+Include links to research citations (WHO, McKinsey, Forbes mental health studies).
+
+🔷 5. COMPLIANCE & PRIVACY
+
+Include clearly visible links in footer:
+
+Terms of Service
+
+Privacy Policy
+
+Data Ethics Charter
+
+AI Transparency Statement
+
+In each form or assessment: explicit “I consent to data use for personalized analytics.”
+
+Add “Delete My Data” option in dashboard.
+
+Add compliance seal icons for HIPAA, GDPR, ISO-27001, and “AI Ethics by Design.”
+
+🔷 6. INVESTOR & PARTNERS SECTION (New)
+
+New navigation tab: For Investors
+
+3 subsections:
+
+Vision 2030: “To impact 10 million entrepreneurs globally.”
+
+Traction & Market: Data points from uploaded plans (MENA market CAGR 12.6%, Global $527B mental health market by 2030).
+
+Funding Ask: Seed Round – $5 Million for 10% Equity.
+
+Visual infographic:
+Use icons for market size, expected ARR ($30M by Year 5), user base growth curve, partnerships (École des Ponts, ReTech, Capital Case).
+
+🔷 7. FOOTER
+
+Include quick links:
+
+About | Features | Pricing | BOSS | Blog | Partnerships | Contact
+
+Icons for Instagram, LinkedIn, YouTube, Twitter
+
+Tagline: “Powered by Foresight. Driven by Compassion.”
+
+Legal line:
+
+AuraVerse AI © 2025. All rights reserved. AuraVerse is a mental-performance platform, not a substitute for medical diagnosis or therapy.
+
+🔷 8. SEO & META
+
+Meta Title: AuraVerse AI | Mental-Performance OS for Entrepreneurs
+
+Meta Description: Build measurable resilience and clarity with AI-powered mentoring, behavioral optimization sprints (BOSS), and encrypted reflection tools.
+
+OG Image: Gradient background with “Build Resilience, Not Resistance.”
+
+Schema: JSON-LD for organization, product, and FAQ.
+
+Keywords: founder mental health, startup burnout, AI mental coach, resilience platform, digital mental wellness.
+
+🔷 9. OPTIONAL FUTURE ADD-ONS
+
+Add a Mood-to-Music AI companion: curates playlists based on journaling tone.
+
+“Zen Mode” workspace syncs calendar + AI breaks.
+
+Integration with Slack or Notion for founders to track emotional performance.
+
+Dashboard API for VC firms to view aggregate (anonymized) mental health trends of portfolio founders.
+
+🔷 10. FINAL BRAND STATEMENT
+
+AuraVerse AI is not just another wellness app.
+It’s the Foresight Engine for the Human Mind — designed to help founders anticipate, adapt, and advance with resilience.
+Built ethically. Guided by science. Inspired by the future.

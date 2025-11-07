@@ -89,8 +89,8 @@ export default function Oracle() {
   return (
     <>
       <Header 
-        title="AI Oracle" 
-        subtitle="Your personal AI advisor for mental wellness and decision support"
+        title='"Oracle"' 
+        subtitle="AI Mentor - Your personal AI advisor for mental wellness and decision support"
         userName={user?.name || ""}
       />
       
@@ -103,7 +103,7 @@ export default function Oracle() {
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10">
                     <Brain className="h-10 w-10 text-primary" />
                   </div>
-                  <h3 className="text-2xl font-semibold">AI Oracle</h3>
+                  <h3 className="text-2xl font-semibold">"Oracle" <span className="text-primary text-lg">AI Mentor</span></h3>
                   <p className="text-muted-foreground max-w-md">
                     Ask me anything about mental wellness, decision-making, or founder challenges. 
                     I'm here to provide personalized guidance based on your current state.

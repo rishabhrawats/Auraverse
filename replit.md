@@ -1,8 +1,8 @@
-# AuraVerse AI - Mental Wellness Platform for Entrepreneurs
+# AuraVerse AI - Mental-Performance OS for Entrepreneurs
 
 ## Overview
 
-AuraVerse AI is an AI-powered mental wellness platform specifically designed for entrepreneurs and startup founders. The application provides real-time effectiveness tracking through a proprietary Effectiveness Index (EI), therapeutic programs, encrypted journaling, zen mode sessions, and calendar integration. Built as a full-stack TypeScript application with a React frontend and Express backend, it emphasizes privacy, data security, and founder-specific mental wellness support.
+AuraVerse AI is the world's first mental-performance OS specifically designed for entrepreneurs and startup founders. The application provides real-time resilience tracking through a proprietary Resilience Index (RI), Behavioral Optimization Sprint System (BOSS), encrypted journaling, zen mode sessions, and calendar integration. Built as a full-stack TypeScript application with a React frontend and Express backend, it emphasizes privacy, data security, and founder-specific mental resilience support.
 
 ## User Preferences
 
@@ -61,19 +61,19 @@ Preferred communication style: Simple, everyday language.
   - `users` - User accounts with Stripe integration fields
   - `profiles` - User preferences (venture stage, avatar archetype, stressors, timezone)
   - `journals` - Encrypted journal entries with client-side encryption
-  - `eiSnapshots` - Effectiveness Index measurements with 6 sub-indices
-  - `programAssignments` - User enrollment in therapeutic programs
-  - `programSteps` - Daily program step tracking
+  - `eiSnapshots` - Resilience Index measurements with 6 sub-indices (maintained as 'ei' for legacy compatibility)
+  - `programAssignments` - User enrollment in BOSS (Behavioral Optimization Sprint System) programs
+  - `programSteps` - Daily BOSS program step tracking
   - `zenSessions` - Meditation/focus session logs
   - `calendarCreds` - Google Calendar OAuth credentials
-  - `subscriptions` - Payment plan management (Starter $5, Pro $99)
-  - `mediaAnalysisSessions` - Voice/video recording analysis sessions with AI insights
+  - `subscriptions` - Payment plan management (Basic $5-9, Growth $39-99, Inclusive $299-399, Elite $999)
+  - `mediaAnalysisSessions` - Before-After Reflection Analysis sessions with AI insights
   - `wearableConnections` - Connected wearable devices (Apple Watch, Fitbit, Oura, WHOOP, Garmin)
   - `wearableData` - Health metrics from wearable devices (heart rate, HRV, sleep, steps, calories)
 
 ### Core Features & Algorithms
 
-**Effectiveness Index (EI) Computation**:
+**Resilience Index (RI) Computation** (internally still called EI for legacy compatibility):
 - 6-metric scoring system: Focus Efficiency, Recovery Latency, Decision Clarity, Emotion Regulation, Support Utilization, Strategic Momentum
 - Outputs FFF state classification (FIGHT/FLIGHT/FREEZE/REGULATED)
 - Located in `/server/lib/ei.ts`
@@ -90,11 +90,11 @@ Preferred communication style: Simple, everyday language.
 - Crisis language detection for safety protocols
 - Located in `/server/openai.ts` and `/server/anthropic.ts`
 
-**Voice/Video Mental Health Analysis**:
+**Before-After Reflection Analysis**:
 - Real-time recording interface supporting Voice, Video, or Both modes
 - Browser MediaRecorder API with live preview and duration tracking (using refs to avoid closure issues)
-- AI analysis of vocal stress, emotional state, speech pace, facial expressions, body language
-- Session history with timestamps and AI-generated wellness recommendations
+- AI analysis of vocal stress, emotional state, speech pace, facial expressions, body language for growth visualization
+- Session history with timestamps showing progress over time and AI-generated wellness recommendations
 - Located in `/client/src/pages/media-analysis.tsx`
 
 **Wearable Device Integration**:
