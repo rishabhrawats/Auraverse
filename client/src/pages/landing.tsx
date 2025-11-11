@@ -276,7 +276,7 @@ export default function Landing() {
             Your Mental-Performance Toolkit
           </h2>
           <p className="text-lg text-gray-300">
-            Five powerful tools designed to build measurable resilience
+            Six powerful tools designed to build measurable resilience
           </p>
         </div>
 

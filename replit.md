@@ -66,7 +66,7 @@ Preferred communication style: Simple, everyday language.
   - `programSteps` - Daily BOSS program step tracking
   - `zenSessions` - Meditation/focus session logs
   - `calendarCreds` - Google Calendar OAuth credentials
-  - `subscriptions` - Payment plan management (Basic $5-9, Growth $39-99, Inclusive $299-399, Elite $999)
+  - `subscriptions` - Payment plan management (Basic $5, Growth $29, Inclusive $99, Elite $999)
   - `mediaAnalysisSessions` - Before-After Reflection Analysis sessions with AI insights
   - `wearableConnections` - Connected wearable devices (Apple Watch, Fitbit, Oura, WHOOP, Garmin)
   - `wearableData` - Health metrics from wearable devices (heart rate, HRV, sleep, steps, calories)
