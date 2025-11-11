@@ -62,6 +62,13 @@ export default function Landing() {
       subtitle: "Growth Visualization",
       description: "AI analyzes emotional tone, speech, and expression shifts from your journal or video entries to visualize growth over time.",
       gradient: "from-indigo-500 to-purple-500"
+    },
+    {
+      icon: <Calendar className="h-8 w-8" />,
+      title: "Zen Mode",
+      subtitle: "Google Calendar Sync with Guided Interventions",
+      description: "Sync your calendar to receive AI-driven guided interventions during breaks, providing real-time stress relief and mindfulness exercises.",
+      gradient: "from-cyan-500 to-blue-500"
     }
   ];
 
@@ -86,7 +93,7 @@ export default function Landing() {
   const pricingTiers = [
     {
       name: "Basic Mind Starter",
-      priceRange: "$5–$9",
+      priceRange: "$5",
       period: "/month",
       description: "Build your foundation",
       features: [
@@ -102,7 +109,7 @@ export default function Landing() {
     },
     {
       name: "Growth Plan",
-      priceRange: "$39–$99",
+      priceRange: "$29",
       period: "/month",
       description: "Accelerate your progress",
       features: [
@@ -119,7 +126,7 @@ export default function Landing() {
     },
     {
       name: "Inclusive Plan",
-      priceRange: "$299–$399",
+      priceRange: "$99",
       period: "/month",
       description: "Human + AI synergy",
       features: [
@@ -420,8 +427,8 @@ export default function Landing() {
                 <h3 className="text-xl font-bold text-white mb-2">{tier.name}</h3>
                 <p className="text-sm text-gray-400 mb-4">{tier.description}</p>
                 <div className="mb-6">
-                  <span className="text-4xl font-bold bg-gradient-to-r ${tier.gradient} bg-clip-text text-transparent">{tier.priceRange}</span>
-                  <span className="text-gray-400 text-sm">{tier.period}</span>
+                  <span className={`text-4xl font-bold bg-gradient-to-r ${tier.gradient} bg-clip-text text-transparent`}>{tier.priceRange}</span>
+                  <span className="text-gray-400 text-sm ml-1">{tier.period}</span>
                 </div>
 
                 <ul className="space-y-3 mb-6">
