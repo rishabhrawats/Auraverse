@@ -40,3 +40,8 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[userenv]
+
+[userenv.shared]
+VITE_FIREBASE_PROJECT_ID = "maaura-8caa9"

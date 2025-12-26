@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { SiGoogle, SiLinkedin } from "react-icons/si";
+import { authService } from "@/lib/auth";
+import { SiGoogle } from "react-icons/si";
 
 const signUpSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -23,70 +23,7 @@ export default function SignUp() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-
-  // Handle OAuth callback
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
-    const oauthSuccess = params.get('oauth');
-    const error = params.get('error');
-
-    if (error === 'oauth_failed') {
-      toast({
-        title: "OAuth Failed",
-        description: "Unable to sign up with OAuth. Please try again.",
-        variant: "destructive",
-      });
-      window.history.replaceState({}, '', '/signup');
-    }
-
-    if (token && oauthSuccess === 'success') {
-      localStorage.setItem("auth_token", token);
-      
-      // Complete onboarding if data exists
-      const onboardingDataStr = sessionStorage.getItem('onboarding_data');
-      if (onboardingDataStr) {
-        const onboardingData = JSON.parse(onboardingDataStr);
-        fetch("/api/onboarding/complete", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            ...onboardingData,
-            consent: true,
-            timezone: onboardingData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
-          }),
-        }).then(async (response) => {
-          if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || "Onboarding failed");
-          }
-          sessionStorage.removeItem('onboarding_data');
-          toast({
-            title: "Welcome to AuraVerse!",
-            description: "Your account has been created successfully.",
-          });
-          window.location.href = "/dashboard";
-        }).catch((error) => {
-          toast({
-            title: "Onboarding Failed",
-            description: error instanceof Error ? error.message : "Please complete your profile from settings.",
-            variant: "destructive",
-          });
-          // Don't clear session storage so user can retry
-          window.location.href = "/dashboard";
-        });
-      } else {
-        toast({
-          title: "Welcome to AuraVerse!",
-          description: "Your account has been created successfully.",
-        });
-        window.location.href = "/dashboard";
-      }
-    }
-  }, [toast]);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -97,35 +34,22 @@ export default function SignUp() {
     },
   });
 
-  const onSubmit = async (data: SignUpFormData) => {
-    setIsLoading(true);
+  const handleGoogleSignUp = async () => {
+    setIsGoogleLoading(true);
     try {
-      // Get onboarding data from sessionStorage
-      const onboardingDataStr = sessionStorage.getItem('onboarding_data');
-      const onboardingData = onboardingDataStr ? JSON.parse(onboardingDataStr) : {};
-
-      // Register user
-      const registerResponse = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      await authService.signInWithGoogle();
       
-      if (!registerResponse.ok) {
-        const error = await registerResponse.json();
-        throw new Error(error.error || "Registration failed");
-      }
-
-      const result = await registerResponse.json();
-      localStorage.setItem("auth_token", result.token);
-
-      // Complete onboarding with stored data
-      if (Object.keys(onboardingData).length > 0) {
-        const onboardingResponse = await fetch("/api/onboarding/complete", {
+      // Complete onboarding if data exists
+      const onboardingDataStr = sessionStorage.getItem('onboarding_data');
+      if (onboardingDataStr) {
+        const onboardingData = JSON.parse(onboardingDataStr);
+        const authHeaders = await authService.getAuthHeaders();
+        
+        const response = await fetch("/api/onboarding/complete", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${result.token}`,
+            ...authHeaders,
           },
           body: JSON.stringify({
             ...onboardingData,
@@ -134,12 +58,9 @@ export default function SignUp() {
           }),
         });
 
-        if (!onboardingResponse.ok) {
-          const error = await onboardingResponse.json();
-          throw new Error(error.error || "Onboarding failed");
+        if (response.ok) {
+          sessionStorage.removeItem('onboarding_data');
         }
-
-        sessionStorage.removeItem('onboarding_data');
       }
 
       toast({
@@ -147,11 +68,74 @@ export default function SignUp() {
         description: "Your account has been created successfully.",
       });
       
-      window.location.href = "/dashboard";
-    } catch (error) {
+      setLocation("/dashboard");
+    } catch (error: any) {
+      console.error("Google sign-up error:", error);
+      toast({
+        title: "Sign Up Failed",
+        description: error.message || "Unable to sign up with Google. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
+  const onSubmit = async (data: SignUpFormData) => {
+    setIsLoading(true);
+    try {
+      // Get onboarding data from sessionStorage
+      const onboardingDataStr = sessionStorage.getItem('onboarding_data');
+      const onboardingData = onboardingDataStr ? JSON.parse(onboardingDataStr) : {};
+
+      // Register user with Firebase
+      await authService.signUp(data.email, data.password, data.fullName);
+
+      // Complete onboarding with stored data
+      if (Object.keys(onboardingData).length > 0) {
+        const authHeaders = await authService.getAuthHeaders();
+        
+        const onboardingResponse = await fetch("/api/onboarding/complete", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeaders,
+          },
+          body: JSON.stringify({
+            ...onboardingData,
+            consent: true,
+            timezone: onboardingData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+          }),
+        });
+
+        if (onboardingResponse.ok) {
+          sessionStorage.removeItem('onboarding_data');
+        }
+      }
+
+      toast({
+        title: "Welcome to AuraVerse!",
+        description: "Your account has been created successfully.",
+      });
+      
+      setLocation("/dashboard");
+    } catch (error: any) {
+      console.error("Sign-up error:", error);
+      let errorMessage = "Please try again";
+      
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = "This email is already registered. Please sign in instead.";
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = "Password is too weak. Please use a stronger password.";
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = "Please enter a valid email address.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Registration Failed",
-        description: error instanceof Error ? error.message : "Please try again",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -176,22 +160,12 @@ export default function SignUp() {
             type="button"
             variant="outline"
             className="w-full h-11"
-            onClick={() => window.location.href = '/api/auth/google'}
+            onClick={handleGoogleSignUp}
+            disabled={isGoogleLoading}
             data-testid="button-google-signup"
           >
             <SiGoogle className="mr-2 h-5 w-5 text-[#4285F4]" />
-            Continue with Google
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full h-11"
-            onClick={() => window.location.href = '/api/auth/linkedin'}
-            data-testid="button-linkedin-signup"
-          >
-            <SiLinkedin className="mr-2 h-5 w-5 text-[#0A66C2]" />
-            Continue with LinkedIn
+            {isGoogleLoading ? "Signing up..." : "Continue with Google"}
           </Button>
         </div>
 

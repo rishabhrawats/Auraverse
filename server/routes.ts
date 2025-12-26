@@ -4,7 +4,8 @@ import { createServer, type Server } from "http";
 import passport from "passport";
 import Stripe from "stripe";
 import { z } from "zod";
-import { storage } from "./storage";
+import { firestoreStorage as storage } from "./firestore-storage";
+import { requireFirebaseAuth } from "./lib/firebase-auth-middleware";
 import { insertProfileSchema, insertJournalSchema } from "@shared/schema";
 import { generateProgramStep, generateOracleResponse } from "./openai";
 import { generateProgramStepFallback, detectCrisisLanguage, generateOracleResponseFallback } from "./anthropic";
@@ -13,7 +14,7 @@ import { setupOAuth } from "./lib/oauth";
 
 // Stripe setup - Optional for now
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-09-30.clover",
 }) : null;
 
 // EI Computation Engine
@@ -65,183 +66,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create API router
   const apiRouter = Router();
   
-  // Import auth functions
-  const { generateToken, verifyToken, hashPassword, comparePassword } = await import('./lib/auth');
-  
-  // Authentication routes
-  apiRouter.post("/auth/register", async (req, res) => {
+  // Firebase Authentication - sync user to Firestore on first access
+  apiRouter.post("/auth/sync", requireFirebaseAuth, async (req: any, res) => {
     try {
-      const { email, password, fullName } = req.body;
+      const { name, fullName } = req.body;
+      const firebaseUser = req.user;
       
-      if (!email || !password || !fullName) {
-        return res.status(400).json({ error: 'Email, password, and full name are required' });
+      // Check if user exists in Firestore
+      let user = await storage.getUser(firebaseUser.uid);
+      
+      if (!user) {
+        // Create new user in Firestore
+        user = await storage.createUser({
+          email: firebaseUser.email,
+          name: name || fullName || firebaseUser.name || firebaseUser.email.split('@')[0],
+          role: 'FOUNDER',
+          passwordHash: '' // Not used with Firebase Auth
+        });
+        
+        // Update the user ID to match Firebase UID
+        // Note: For Firestore, we'll use the Firebase UID as the document ID
       }
       
-      // Check if user already exists
-      const existingUser = await storage.getUserByEmail(email);
-      if (existingUser) {
-        return res.status(400).json({ error: 'User already exists' });
-      }
-      
-      // Hash password and create user
-      const passwordHash = await hashPassword(password);
-      const user = await storage.createUser({
-        email,
-        passwordHash,
-        name: fullName,
-        role: 'FOUNDER'
-      });
-      
-      // Generate JWT token
-      const token = generateToken(user.id, user.email, user.role || 'FOUNDER');
-      
-      res.json({ 
-        token, 
-        user: { 
-          id: user.id, 
-          email: user.email, 
-          name: user.name,
-          role: user.role
-        } 
+      res.json({
+        user: {
+          id: firebaseUser.uid,
+          email: firebaseUser.email,
+          name: user.name || firebaseUser.name,
+          role: user.role || 'FOUNDER',
+          emailVerified: firebaseUser.emailVerified
+        }
       });
     } catch (error: any) {
+      console.error('Auth sync error:', error);
       res.status(500).json({ error: error.message });
     }
+  });
+
+  // Legacy routes - kept for backwards compatibility but redirect to Firebase Auth
+  apiRouter.post("/auth/register", async (req, res) => {
+    res.status(400).json({ 
+      error: 'Please use Firebase Authentication', 
+      message: 'This endpoint is deprecated. Use Firebase Auth on the frontend.' 
+    });
   });
   
   apiRouter.post("/auth/login", async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      
-      if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
-      }
-      
-      // Find user
-      const user = await storage.getUserByEmail(email);
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
-      
-      // Verify password
-      const isValid = await comparePassword(password, user.passwordHash);
-      if (!isValid) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
-      
-      // Generate JWT token
-      const token = generateToken(user.id, user.email, user.role || 'FOUNDER');
-      
-      res.json({ 
-        token,
-        user: { 
-          id: user.id, 
-          email: user.email, 
-          name: user.name,
-          role: user.role
-        } 
-      });
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
+    res.status(400).json({ 
+      error: 'Please use Firebase Authentication', 
+      message: 'This endpoint is deprecated. Use Firebase Auth on the frontend.' 
+    });
   });
   
   apiRouter.post("/auth/forgot-password", async (req, res) => {
-    try {
-      const { email } = req.body;
-      
-      if (!email) {
-        return res.status(400).json({ error: 'Email is required' });
-      }
-      
-      // Find user
-      const user = await storage.getUserByEmail(email);
-      if (!user) {
-        // Return success even if user not found (security best practice)
-        return res.json({ message: 'If that email exists, we sent a reset link' });
-      }
-      
-      // Generate cryptographically secure reset token
-      const resetToken = require('crypto').randomBytes(32).toString('hex');
-      const expiresAt = new Date(Date.now() + 3600000); // 1 hour from now
-      
-      await storage.createPasswordResetToken({
-        userId: user.id,
-        token: resetToken,
-        expiresAt,
-        used: false,
-      });
-      
-      // Send email (for demo, just log to console)
-      const resetUrl = `${process.env.REPLIT_CONNECTORS_HOSTNAME || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
-      console.log('\n=== PASSWORD RESET EMAIL ===');
-      console.log(`To: ${email}`);
-      console.log(`Reset URL: ${resetUrl}`);
-      console.log('===========================\n');
-      
-      res.json({ message: 'If that email exists, we sent a reset link' });
-    } catch (error: any) {
-      console.error('Forgot password error:', error);
-      res.status(500).json({ error: 'Failed to process password reset' });
-    }
+    res.status(400).json({ 
+      error: 'Please use Firebase Authentication', 
+      message: 'Use Firebase Auth password reset on the frontend.' 
+    });
   });
   
   apiRouter.post("/auth/reset-password", async (req, res) => {
-    try {
-      const { token, password } = req.body;
-      
-      if (!token || !password) {
-        return res.status(400).json({ error: 'Token and password are required' });
-      }
-      
-      // Find valid token
-      const resetToken = await storage.getPasswordResetToken(token);
-      if (!resetToken || resetToken.used || resetToken.expiresAt < new Date()) {
-        return res.status(400).json({ error: 'Invalid or expired reset token' });
-      }
-      
-      // Update user password
-      const passwordHash = await hashPassword(password);
-      await storage.updateUser(resetToken.userId, { passwordHash });
-      
-      // Mark token as used
-      await storage.markPasswordResetTokenUsed(token);
-      
-      res.json({ message: 'Password reset successful' });
-    } catch (error: any) {
-      console.error('Reset password error:', error);
-      res.status(500).json({ error: 'Failed to reset password' });
-    }
+    res.status(400).json({ 
+      error: 'Please use Firebase Authentication', 
+      message: 'Use Firebase Auth password reset on the frontend.' 
+    });
   });
   
-  // Authentication middleware
-  const requireAuth = async (req: any, res: any, next: any) => {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
-    
-    if (!token) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-    
-    const decoded = verifyToken(token);
-    if (!decoded) {
-      return res.status(403).json({ error: 'Invalid token' });
-    }
-    
-    // Verify user still exists
-    const user = await storage.getUser(decoded.userId);
-    if (!user) {
-      return res.status(403).json({ error: 'User not found' });
-    }
-    
-    req.user = {
-      id: user.id,
-      email: user.email,
-      role: user.role || 'FOUNDER',
-      name: user.name
-    };
-    next();
-  };
+  // Authentication middleware - using Firebase Auth
+  const requireAuth = requireFirebaseAuth;
 
   // User profile routes
   apiRouter.get("/me", requireAuth, async (req: any, res) => {
@@ -859,7 +751,7 @@ Please try asking your question again in a few moments when AI services are rest
         refreshToken: null,
         tokenExpiry: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
         isActive: true,
-        lastSync: new Date()
+        lastSyncAt: new Date()
       });
 
       res.json(connection);

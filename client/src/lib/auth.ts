@@ -1,129 +1,173 @@
-// Mock authentication for development
-// In production, this would integrate with NextAuth or similar
+// Firebase Authentication Service
+// Handles all authentication using Firebase Auth
+
+import { 
+  auth, 
+  signInWithGoogle, 
+  signInWithEmail, 
+  signUpWithEmail, 
+  logOut, 
+  onAuthChange,
+  getIdToken,
+  User as FirebaseUser 
+} from './firebase';
+
 export interface AuthUser {
   id: string;
   email: string;
   name: string;
   role: 'FOUNDER' | 'THERAPIST' | 'ADMIN';
+  emailVerified?: boolean;
+  photoURL?: string;
 }
 
 class AuthService {
   private currentUser: AuthUser | null = null;
-  private authToken: string | null = null;
+  private firebaseUser: FirebaseUser | null = null;
   private listeners: Array<(user: AuthUser | null) => void> = [];
-  private initPromise: Promise<void> | null = null;
+  private initPromise: Promise<void>;
+  private unsubscribe: (() => void) | null = null;
 
   constructor() {
-    // Check for existing session in localStorage
-    const storedToken = localStorage.getItem('auth_token');
-    
-    if (storedToken) {
-      this.authToken = storedToken;
-      // Fetch user data from /api/me
-      this.initPromise = this.fetchCurrentUser();
-    } else {
-      this.initPromise = Promise.resolve();
-    }
+    this.initPromise = new Promise((resolve) => {
+      this.unsubscribe = onAuthChange(async (firebaseUser) => {
+        if (firebaseUser) {
+          this.firebaseUser = firebaseUser;
+          this.currentUser = {
+            id: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+            role: 'FOUNDER',
+            emailVerified: firebaseUser.emailVerified,
+            photoURL: firebaseUser.photoURL || undefined
+          };
+          
+          // Sync with backend
+          try {
+            await this.syncWithBackend();
+          } catch (error) {
+            console.error('Failed to sync with backend:', error);
+          }
+        } else {
+          this.firebaseUser = null;
+          this.currentUser = null;
+        }
+        
+        this.notifyListeners();
+        resolve();
+      });
+    });
   }
 
-  private async fetchCurrentUser() {
+  private async syncWithBackend() {
+    const token = await getIdToken();
+    if (!token) return;
+
     try {
-      const response = await fetch('/api/me', {
+      const response = await fetch('/api/auth/sync', {
+        method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.authToken}`
-        }
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: this.currentUser?.name
+        })
       });
-      
+
       if (response.ok) {
-        const userData = await response.json();
-        this.currentUser = {
-          id: userData.id,
-          email: userData.email,
-          name: userData.name,
-          role: userData.role || 'FOUNDER'
-        };
-        this.notifyListeners();
-      } else {
-        // Invalid token, clear auth
-        this.signOut();
+        const data = await response.json();
+        if (data.user && this.currentUser) {
+          this.currentUser.role = data.user.role || 'FOUNDER';
+          this.currentUser.name = data.user.name || this.currentUser.name;
+        }
       }
     } catch (error) {
-      console.error('Failed to fetch user:', error);
-      this.signOut();
+      console.error('Backend sync error:', error);
     }
   }
 
   async waitForInit() {
-    if (this.initPromise) {
-      await this.initPromise;
-    }
+    await this.initPromise;
+  }
+
+  async signInWithGoogle(): Promise<AuthUser> {
+    const firebaseUser = await signInWithGoogle();
+    
+    this.firebaseUser = firebaseUser;
+    this.currentUser = {
+      id: firebaseUser.uid,
+      email: firebaseUser.email || '',
+      name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+      role: 'FOUNDER',
+      emailVerified: firebaseUser.emailVerified,
+      photoURL: firebaseUser.photoURL || undefined
+    };
+
+    await this.syncWithBackend();
+    this.notifyListeners();
+    
+    return this.currentUser;
   }
 
   async signIn(email: string, password: string): Promise<AuthUser> {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-
-    if (!response.ok) {
-      throw new Error('Sign in failed');
-    }
-
-    const data = await response.json();
-    const { token, user } = data;
+    const firebaseUser = await signInWithEmail(email, password);
     
-    this.authToken = token;
+    this.firebaseUser = firebaseUser;
     this.currentUser = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role || 'FOUNDER'
+      id: firebaseUser.uid,
+      email: firebaseUser.email || '',
+      name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+      role: 'FOUNDER',
+      emailVerified: firebaseUser.emailVerified,
+      photoURL: firebaseUser.photoURL || undefined
     };
-    
-    localStorage.setItem('auth_token', token);
-    
+
+    await this.syncWithBackend();
     this.notifyListeners();
     
     return this.currentUser;
   }
 
   async signUp(email: string, password: string, name: string): Promise<AuthUser> {
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, fullName: name })
-    });
+    const firebaseUser = await signUpWithEmail(email, password);
+    
+    this.firebaseUser = firebaseUser;
+    this.currentUser = {
+      id: firebaseUser.uid,
+      email: firebaseUser.email || '',
+      name: name || firebaseUser.email?.split('@')[0] || 'User',
+      role: 'FOUNDER',
+      emailVerified: firebaseUser.emailVerified,
+      photoURL: firebaseUser.photoURL || undefined
+    };
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Sign up failed');
+    // Sync with backend to create user record
+    const token = await getIdToken();
+    if (token) {
+      try {
+        await fetch('/api/auth/sync', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ name, fullName: name })
+        });
+      } catch (error) {
+        console.error('Failed to create user record:', error);
+      }
     }
 
-    const data = await response.json();
-    const { token, user } = data;
-    
-    this.authToken = token;
-    this.currentUser = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role || 'FOUNDER'
-    };
-    
-    localStorage.setItem('auth_token', token);
-    
     this.notifyListeners();
     
     return this.currentUser;
   }
 
-  signOut(): void {
+  async signOut(): Promise<void> {
+    await logOut();
     this.currentUser = null;
-    this.authToken = null;
-    
-    localStorage.removeItem('auth_token');
-    
+    this.firebaseUser = null;
     this.notifyListeners();
   }
 
@@ -131,12 +175,12 @@ class AuthService {
     return this.currentUser;
   }
 
-  getAuthToken(): string | null {
-    return this.authToken;
+  async getAuthToken(): Promise<string | null> {
+    return getIdToken();
   }
 
   isAuthenticated(): boolean {
-    return this.currentUser !== null && this.authToken !== null;
+    return this.currentUser !== null && this.firebaseUser !== null;
   }
 
   onAuthStateChange(callback: (user: AuthUser | null) => void): () => void {
@@ -152,14 +196,22 @@ class AuthService {
     this.listeners.forEach(listener => listener(this.currentUser));
   }
 
-  // Helper to add auth headers to requests
-  getAuthHeaders(): Record<string, string> {
-    if (this.authToken) {
+  // Helper to get auth headers for API requests
+  async getAuthHeaders(): Promise<Record<string, string>> {
+    const token = await getIdToken();
+    if (token) {
       return {
-        'Authorization': `Bearer ${this.authToken}`
+        'Authorization': `Bearer ${token}`
       };
     }
     return {};
+  }
+
+  // Cleanup
+  destroy(): void {
+    if (this.unsubscribe) {
+      this.unsubscribe();
+    }
   }
 }
 

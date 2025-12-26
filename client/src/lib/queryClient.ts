@@ -13,8 +13,9 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  const authHeaders = await authService.getAuthHeaders();
   const headers: Record<string, string> = {
-    ...authService.getAuthHeaders(),
+    ...authHeaders,
   };
   
   if (data) {
@@ -38,8 +39,9 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
+    const authHeaders = await authService.getAuthHeaders();
     const res = await fetch(queryKey.join("/") as string, {
-      headers: authService.getAuthHeaders(),
+      headers: authHeaders,
       credentials: "include",
     });
 

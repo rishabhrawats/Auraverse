@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { SiGoogle, SiLinkedin } from "react-icons/si";
+import { authService } from "@/lib/auth";
+import { SiGoogle } from "react-icons/si";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -22,22 +22,7 @@ export default function SignIn() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-
-  // Handle OAuth callback
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
-    const oauthSuccess = params.get('oauth');
-
-    if (token && oauthSuccess === 'success') {
-      localStorage.setItem("auth_token", token);
-      toast({
-        title: "Welcome back!",
-        description: "You've successfully signed in.",
-      });
-      window.location.href = "/dashboard";
-    }
-  }, [toast]);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
@@ -47,27 +32,59 @@ export default function SignIn() {
     },
   });
 
-  const onSubmit = async (data: SignInFormData) => {
-    setIsLoading(true);
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
     try {
-      const response = await apiRequest("POST", "/api/auth/login", data);
-      const result = await response.json();
+      await authService.signInWithGoogle();
       
-      if (!response.ok) {
-        throw new Error(result.message || "Login failed");
-      }
-
-      localStorage.setItem("auth_token", result.token);
       toast({
         title: "Welcome back!",
         description: "You've successfully signed in.",
       });
       
-      window.location.href = "/dashboard";
-    } catch (error) {
+      setLocation("/dashboard");
+    } catch (error: any) {
+      console.error("Google sign-in error:", error);
       toast({
         title: "Sign In Failed",
-        description: error instanceof Error ? error.message : "Please check your credentials",
+        description: error.message || "Unable to sign in with Google. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
+  const onSubmit = async (data: SignInFormData) => {
+    setIsLoading(true);
+    try {
+      await authService.signIn(data.email, data.password);
+      
+      toast({
+        title: "Welcome back!",
+        description: "You've successfully signed in.",
+      });
+      
+      setLocation("/dashboard");
+    } catch (error: any) {
+      console.error("Sign-in error:", error);
+      let errorMessage = "Please check your credentials";
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = "No account found with this email. Please sign up first.";
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = "Incorrect password. Please try again.";
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = "Please enter a valid email address.";
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = "Too many failed attempts. Please try again later.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast({
+        title: "Sign In Failed",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -92,22 +109,12 @@ export default function SignIn() {
             type="button"
             variant="outline"
             className="w-full h-11"
-            onClick={() => window.location.href = '/api/auth/google'}
+            onClick={handleGoogleSignIn}
+            disabled={isGoogleLoading}
             data-testid="button-google-signin"
           >
             <SiGoogle className="mr-2 h-5 w-5 text-[#4285F4]" />
-            Continue with Google
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full h-11"
-            onClick={() => window.location.href = '/api/auth/linkedin'}
-            data-testid="button-linkedin-signin"
-          >
-            <SiLinkedin className="mr-2 h-5 w-5 text-[#0A66C2]" />
-            Continue with LinkedIn
+            {isGoogleLoading ? "Signing in..." : "Continue with Google"}
           </Button>
         </div>
 
@@ -148,18 +155,7 @@ export default function SignIn() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel>Password</FormLabel>
-                    <Button
-                      type="button"
-                      variant="link"
-                      className="p-0 h-auto text-xs text-primary hover:text-primary/80"
-                      onClick={() => setLocation("/forgot-password")}
-                      data-testid="link-forgot-password"
-                    >
-                      Forgot password?
-                    </Button>
-                  </div>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
                     <PasswordInput
                       placeholder="••••••••"
