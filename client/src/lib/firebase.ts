@@ -2,7 +2,8 @@
 // Using Firebase integration for authentication and Firestore database
 
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
+import type { User } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -76,4 +77,4 @@ export async function getIdToken(): Promise<string | null> {
   return user.getIdToken();
 }
 
-export { User };
+export type { User };
