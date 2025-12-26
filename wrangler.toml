@@ -1,0 +1,7 @@
+name = "auraverse"
+compatibility_date = "2025-12-26"
+
+main = "dist/index.js"
+
+[assets]
+directory = "dist/public"
