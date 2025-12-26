@@ -4,3 +4,8 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# Firebase service account keys (NEVER commit these)
+*firebase*adminsdk*.json
+*service*account*.json
+attached_assets/*.json
