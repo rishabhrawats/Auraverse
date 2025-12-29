@@ -1,7 +1,14 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = process.env.GEMINI_API_KEY 
-  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const apiKey = process.env.GEMINI_API_KEY;
+if (apiKey) {
+  console.log(`Gemini API key loaded: ${apiKey.substring(0, 8)}...${apiKey.substring(apiKey.length - 4)}`);
+} else {
+  console.log("No Gemini API key found");
+}
+
+const genAI = apiKey
+  ? new GoogleGenerativeAI(apiKey)
   : null;
 
 export async function generateOracleResponseGemini(question: string, systemPrompt: string): Promise<string> {
