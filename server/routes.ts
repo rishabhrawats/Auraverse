@@ -607,8 +607,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ received: true });
   });
 
-  // AI Oracle routes
-  apiRouter.post("/oracle/ask", requireAuth, async (req: any, res) => {
+  // AI Oracle routes - No auth required for Gemini AI responses
+  apiRouter.post("/oracle/ask", async (req: any, res) => {
     try {
       const { question, eiContext } = req.body;
       
