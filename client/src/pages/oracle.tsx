@@ -12,7 +12,7 @@ import { Sparkles, Send, Brain, User, Bot } from "lucide-react";
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
 }
@@ -38,14 +38,14 @@ export default function Oracle() {
       return response.json();
     },
     onSuccess: (data) => {
-      setMessages(prev => [
+      setMessages((prev) => [
         ...prev,
         {
           id: Date.now().toString(),
-          role: 'assistant',
+          role: "assistant",
           content: data.answer,
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       ]);
     },
     onError: (error) => {
@@ -69,12 +69,12 @@ export default function Oracle() {
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      role: 'user',
+      role: "user",
       content: input,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     askMutation.mutate(input);
     setInput("");
   };
@@ -88,12 +88,12 @@ export default function Oracle() {
 
   return (
     <>
-      <Header 
-        title='"Oracle"' 
+      <Header
+        title='"Oracle"'
         subtitle="AI Mentor - Your personal AI advisor for mental wellness and decision support"
         userName={user?.name || ""}
       />
-      
+
       <div className="max-w-5xl mx-auto px-8 py-8 h-[calc(100vh-180px)] flex flex-col">
         <Card className="flex-1 flex flex-col bg-card border-border">
           <CardContent className="flex-1 flex flex-col p-6">
@@ -103,21 +103,28 @@ export default function Oracle() {
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10">
                     <Brain className="h-10 w-10 text-primary" />
                   </div>
-                  <h3 className="text-2xl font-semibold">"Oracle" <span className="text-primary text-lg">AI Mentor</span></h3>
+                  <h3 className="text-2xl font-semibold">
+                    "Oracle"{" "}
+                    <span className="text-primary text-lg">AI Mentor</span>
+                  </h3>
                   <p className="text-muted-foreground max-w-md">
-                    Ask me anything about mental wellness, decision-making, or founder challenges. 
-                    I'm here to provide personalized guidance based on your current state.
+                    Ask me anything about mental wellness, decision-making, or
+                    founder challenges. I'm here to provide personalized
+                    guidance based on your current state.
                   </p>
                   {latestEI && (
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-muted rounded-full text-sm">
                       <Sparkles className="h-4 w-4" />
-                      Current State: <span className="font-semibold">{latestEI.state}</span>
+                      Current State:{" "}
+                      <span className="font-semibold">{latestEI.state}</span>
                     </div>
                   )}
                 </div>
 
                 <div className="w-full max-w-2xl space-y-3">
-                  <p className="text-sm text-muted-foreground text-center">Try asking:</p>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Try asking:
+                  </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {suggestedQuestions.map((question, idx) => (
                       <Button
@@ -139,24 +146,26 @@ export default function Oracle() {
                   {messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : ''}`}
+                      className={`flex gap-4 ${message.role === "user" ? "justify-end" : ""}`}
                       data-testid={`message-${message.role}`}
                     >
-                      {message.role === 'assistant' && (
+                      {message.role === "assistant" && (
                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                           <Bot className="h-5 w-5 text-primary" />
                         </div>
                       )}
                       <div
                         className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                          message.role === 'user'
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted'
+                          message.role === "user"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted"
                         }`}
                       >
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                          {message.content}
+                        </p>
                       </div>
-                      {message.role === 'user' && (
+                      {message.role === "user" && (
                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                           <User className="h-5 w-5 text-primary-foreground" />
                         </div>
@@ -170,9 +179,18 @@ export default function Oracle() {
                       </div>
                       <div className="max-w-[80%] rounded-2xl px-4 py-3 bg-muted">
                         <div className="flex gap-1">
-                          <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '0ms' }} />
-                          <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '150ms' }} />
-                          <div className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+                          <div
+                            className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce"
+                            style={{ animationDelay: "0ms" }}
+                          />
+                          <div
+                            className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce"
+                            style={{ animationDelay: "150ms" }}
+                          />
+                          <div
+                            className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce"
+                            style={{ animationDelay: "300ms" }}
+                          />
                         </div>
                       </div>
                     </div>
@@ -191,8 +209,8 @@ export default function Oracle() {
                   disabled={askMutation.isPending}
                   data-testid="input-oracle-question"
                 />
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={!input.trim() || askMutation.isPending}
                   data-testid="button-send"
                 >
