@@ -9,6 +9,7 @@ import { requireFirebaseAuth } from "./lib/firebase-auth-middleware";
 import { insertProfileSchema, insertJournalSchema } from "@shared/schema";
 import { generateProgramStep, generateOracleResponse } from "./openai";
 import { generateProgramStepFallback, detectCrisisLanguage, generateOracleResponseFallback } from "./anthropic";
+import { generateOracleResponseGemini } from "./gemini";
 import { createZenModeEvent, getCalendarWorkload, setupCalendarWatch } from "./googleCalendarClient";
 import { setupOAuth } from "./lib/oauth";
 
@@ -632,18 +633,22 @@ Focus on:
 
 Keep responses concise (2-3 paragraphs), supportive, and actionable.`;
 
-      // Try OpenAI first, fallback to Anthropic, then provide helpful default
+      // Try Gemini first, fallback to OpenAI, then Anthropic, then provide helpful default
       let answer;
       try {
-        answer = await generateOracleResponse(question, systemPrompt);
-      } catch (openaiError) {
-        console.log('OpenAI unavailable, trying Anthropic...');
+        answer = await generateOracleResponseGemini(question, systemPrompt);
+      } catch (geminiError) {
+        console.log('Gemini unavailable, trying OpenAI...', geminiError);
         try {
-          answer = await generateOracleResponseFallback(question, systemPrompt);
-        } catch (anthropicError) {
-          console.log('Both AI providers unavailable, using default response');
-          // Provide a helpful default response when both APIs are unavailable
-          answer = `I'm currently experiencing technical difficulties connecting to AI services. However, I can offer some general guidance:
+          answer = await generateOracleResponse(question, systemPrompt);
+        } catch (openaiError) {
+          console.log('OpenAI unavailable, trying Anthropic...');
+          try {
+            answer = await generateOracleResponseFallback(question, systemPrompt);
+          } catch (anthropicError) {
+            console.log('All AI providers unavailable, using default response');
+            // Provide a helpful default response when all APIs are unavailable
+            answer = `I'm currently experiencing technical difficulties connecting to AI services. However, I can offer some general guidance:
 
 For mental wellness as a founder, consider these evidence-based approaches:
 1. **Structured breaks**: Use the Pomodoro technique (25 min work, 5 min break) to maintain focus and prevent burnout.
@@ -659,6 +664,7 @@ Based on your current state (${eiContext?.state || 'REGULATED'}), ${
 }
 
 Please try asking your question again in a few moments when AI services are restored.`;
+          }
         }
       }
 
