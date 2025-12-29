@@ -633,22 +633,14 @@ Focus on:
 
 Keep responses concise (2-3 paragraphs), supportive, and actionable.`;
 
-      // Try Gemini first, fallback to OpenAI, then Anthropic, then provide helpful default
+      // Use Gemini only (no fallbacks)
       let answer;
       try {
         answer = await generateOracleResponseGemini(question, systemPrompt);
-      } catch (geminiError) {
-        console.log('Gemini unavailable, trying OpenAI...', geminiError);
-        try {
-          answer = await generateOracleResponse(question, systemPrompt);
-        } catch (openaiError) {
-          console.log('OpenAI unavailable, trying Anthropic...');
-          try {
-            answer = await generateOracleResponseFallback(question, systemPrompt);
-          } catch (anthropicError) {
-            console.log('All AI providers unavailable, using default response');
-            // Provide a helpful default response when all APIs are unavailable
-            answer = `I'm currently experiencing technical difficulties connecting to AI services. However, I can offer some general guidance:
+      } catch (geminiError: any) {
+        console.log('Gemini error:', geminiError.message || geminiError);
+        // Provide a helpful default response when Gemini is unavailable
+        answer = `I'm currently experiencing technical difficulties connecting to Gemini AI. However, I can offer some general guidance:
 
 For mental wellness as a founder, consider these evidence-based approaches:
 1. **Structured breaks**: Use the Pomodoro technique (25 min work, 5 min break) to maintain focus and prevent burnout.
@@ -663,9 +655,7 @@ Based on your current state (${eiContext?.state || 'REGULATED'}), ${
   'keep maintaining your balanced approach.'
 }
 
-Please try asking your question again in a few moments when AI services are restored.`;
-          }
-        }
+Please try asking your question again in a few moments when Gemini API quota is restored.`;
       }
 
       res.json({ answer });
