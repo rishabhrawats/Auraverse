@@ -19,8 +19,9 @@ export async function generateOracleResponseGemini(
   }
 
   try {
+    // ✅ Use a supported Gemini model
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash", // updated from gemini-1.5-flash
     });
 
     const prompt = `
@@ -32,6 +33,7 @@ ${question}
 Respond with empathetic, practical, and concise guidance.
     `.trim();
 
+    // Generate AI response
     const result = await model.generateContent(prompt);
 
     if (!result?.response) {
