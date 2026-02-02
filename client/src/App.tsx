@@ -1,13 +1,13 @@
 import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
+
+import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/use-auth";
 import { Sidebar } from "@/components/layout/sidebar";
-import { Header } from "@/components/layout/header";
 import { SplashScreen } from "@/components/layout/splash-screen";
-import { useState } from "react";
 
 // Pages
 import Landing from "@/pages/landing";
@@ -21,13 +21,15 @@ import Insights from "@/pages/insights";
 import MediaAnalysis from "@/pages/media-analysis";
 import Billing from "@/pages/billing";
 import Privacy from "@/pages/privacy";
+import Terms from "@/pages/terms";
+import Contact from "@/pages/contact";
+import NotFound from "@/pages/not-found";
+
+// Auth
 import SignIn from "@/components/auth/sign-in";
 import SignUp from "@/components/auth/sign-up";
 import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
-import Terms from "@/pages/terms";
-import Contact from "@/pages/contact";
-import NotFound from "@/pages/not-found";
 
 function AuthenticatedApp() {
   const { user } = useAuth();
@@ -78,6 +80,7 @@ function UnauthenticatedApp() {
 
 function App() {
   const { isAuthenticated, loading } = useAuth();
+
   const [showSplash, setShowSplash] = useState(() => {
     return !sessionStorage.getItem("hasSeenSplash");
   });
