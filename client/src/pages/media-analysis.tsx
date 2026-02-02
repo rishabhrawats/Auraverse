@@ -10,8 +10,39 @@ import {
 } from "@/components/ui/card";
 import { Camera, Sparkles, Brain } from "lucide-react";
 
-const RECORDING_DURATION = 30;
+/* ===============================
+   CONFIG
+================================ */
+const RECORDING_DURATION = 90; // 1.5 minutes
+const QUESTIONS_PER_SESSION = 3;
 
+/* ===============================
+   QUESTION BANK (18)
+================================ */
+const QUESTION_BANK = [
+  "How have you been feeling emotionally this past week?",
+  "What has been weighing on your mind lately?",
+  "Is there something you’ve been avoiding thinking about?",
+  "What moment recently made you feel stressed?",
+  "What has brought you a sense of relief recently?",
+  "Is there a conversation you wish had gone differently?",
+  "What feels unresolved in your life right now?",
+  "When did you last feel truly calm?",
+  "What has been draining your energy?",
+  "What are you worried might happen next?",
+  "What are you proud of yourself for?",
+  "What situation has made you feel tense lately?",
+  "What do you feel you’re not expressing fully?",
+  "What responsibility feels heavy right now?",
+  "What are you trying to stay strong about?",
+  "What emotion do you notice most often during the day?",
+  "What feels uncertain in your life right now?",
+  "What would you change about the past week?",
+];
+
+/* ===============================
+   TYPES
+================================ */
 type SessionSummary = {
   session_duration: string;
   avg_stress: number;
@@ -28,6 +59,8 @@ export default function MediaAnalysis() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const intervalRef = useRef<number | null>(null);
+  const questionIntervalRef = useRef<number | null>(null);
 
   const [secondsLeft, setSecondsLeft] = useState(RECORDING_DURATION);
   const [isRecording, setIsRecording] = useState(false);
@@ -38,22 +71,35 @@ export default function MediaAnalysis() {
   const [humanReport, setHumanReport] = useState<string[] | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Cleanup
+  const [questions, setQuestions] = useState<string[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+
+  /* ===============================
+     CLEANUP
+  ================================ */
   useEffect(() => {
     return () => {
       streamRef.current?.getTracks().forEach(t => t.stop());
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
+      if (questionIntervalRef.current) window.clearInterval(questionIntervalRef.current);
     };
   }, []);
 
-  // ---------------------------
-  // START RECORDING
-  // ---------------------------
+  /* ===============================
+     START RECORDING
+  ================================ */
   const startRecording = async () => {
     setErrorMessage(null);
     setSessionSummary(null);
     setHumanReport(null);
     setRecordedVideoUrl(null);
     setSecondsLeft(RECORDING_DURATION);
+
+    // Pick 3 random questions
+    const shuffled = [...QUESTION_BANK].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, QUESTIONS_PER_SESSION);
+    setQuestions(selected);
+    setCurrentQuestionIndex(0);
 
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
@@ -76,21 +122,35 @@ export default function MediaAnalysis() {
     recorder.start();
     setIsRecording(true);
 
-    let remaining = RECORDING_DURATION;
-    const interval = setInterval(() => {
-      remaining -= 1;
-      setSecondsLeft(remaining);
-
-      if (remaining <= 0) {
-        clearInterval(interval);
-        recorder.stop();
-      }
+    // Countdown timer
+    intervalRef.current = window.setInterval(() => {
+      setSecondsLeft(prev => {
+        if (prev <= 1) {
+          recorder.stop();
+          if (intervalRef.current) window.clearInterval(intervalRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
+
+    // Rotate questions evenly
+    const questionDuration = RECORDING_DURATION / QUESTIONS_PER_SESSION;
+    let qIndex = 0;
+
+    questionIntervalRef.current = window.setInterval(() => {
+      qIndex += 1;
+      if (qIndex < selected.length) {
+        setCurrentQuestionIndex(qIndex);
+      } else {
+        if (questionIntervalRef.current) window.clearInterval(questionIntervalRef.current);
+      }
+    }, questionDuration * 1000);
   };
 
-  // ---------------------------
-  // STOP + UPLOAD
-  // ---------------------------
+  /* ===============================
+     STOP + UPLOAD
+  ================================ */
   const handleRecordingStop = async () => {
     setIsRecording(false);
     setIsUploading(true);
@@ -111,7 +171,6 @@ export default function MediaAnalysis() {
       });
 
       const data = await res.json();
-      console.log("BACKEND RESPONSE:", data);
 
       if (!data.session_summary) {
         throw new Error("session_summary missing");
@@ -119,7 +178,6 @@ export default function MediaAnalysis() {
 
       setSessionSummary(data.session_summary);
       setHumanReport(Array.isArray(data.human_report) ? data.human_report : null);
-
     } catch (err) {
       console.error(err);
       setErrorMessage("Analysis failed. Please try again.");
@@ -128,6 +186,9 @@ export default function MediaAnalysis() {
     }
   };
 
+  /* ===============================
+     UI
+  ================================ */
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
@@ -140,10 +201,10 @@ export default function MediaAnalysis() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Brain className="h-5 w-5 text-primary" />
-                Session Instructions
+                Guided Reflection Session
               </CardTitle>
               <CardDescription>
-                Speak naturally about your current emotional state for 30 seconds.
+                Answer the on-screen prompts naturally. There are no right or wrong answers.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -153,7 +214,7 @@ export default function MediaAnalysis() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
-                Recording
+                Recording (90 seconds)
               </CardTitle>
             </CardHeader>
 
@@ -172,9 +233,15 @@ export default function MediaAnalysis() {
                 )}
 
                 {isRecording && (
-                  <div className="absolute top-3 right-3 bg-black/70 px-3 py-1 rounded text-xl font-bold">
-                    {secondsLeft}s
-                  </div>
+                  <>
+                    <div className="absolute top-3 right-3 bg-black/70 px-3 py-1 rounded text-xl font-bold">
+                      {secondsLeft}s
+                    </div>
+
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 px-4 py-2 rounded text-white text-sm max-w-[90%] text-center">
+                      {questions[currentQuestionIndex]}
+                    </div>
+                  </>
                 )}
 
                 {!recordedVideoUrl && !isRecording && (
@@ -187,7 +254,7 @@ export default function MediaAnalysis() {
               <div className="text-center">
                 {!isRecording && !isUploading && (
                   <Button size="lg" onClick={startRecording}>
-                    Start Recording
+                    Start Session
                   </Button>
                 )}
                 {isUploading && (
@@ -199,13 +266,13 @@ export default function MediaAnalysis() {
             </CardContent>
           </Card>
 
-          {/* HUMAN READABLE REPORT */}
+          {/* HUMAN REPORT */}
           {humanReport && (
             <Card className="border-primary/40">
               <CardHeader>
                 <CardTitle>Session Reflection</CardTitle>
                 <CardDescription>
-                  A plain-language summary of your emotional signals
+                  This is a supportive reflection, not a medical diagnosis.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
@@ -216,21 +283,21 @@ export default function MediaAnalysis() {
             </Card>
           )}
 
-          {/* RAW METRICS (SECONDARY) */}
+          {/* RAW METRICS */}
           {sessionSummary && (
             <Card className="border-muted">
               <CardHeader>
                 <CardTitle>Session Metrics</CardTitle>
                 <CardDescription>
-                  Detailed numerical indicators (for reference)
+                  Numerical indicators for reference.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="text-sm space-y-2">
+              <CardContent className="text-sm space-y-1">
                 <p><strong>Dominant Emotion:</strong> {sessionSummary.dominant_emotion}</p>
                 <p><strong>Average Stress:</strong> {sessionSummary.avg_stress}</p>
                 <p><strong>Engagement:</strong> {sessionSummary.engagement_score}</p>
                 <p><strong>Valence Balance:</strong> {sessionSummary.emotional_valence_balance}</p>
-                <p><strong>Variability:</strong> {sessionSummary.emotional_variability}</p>
+                <p><strong>Emotional Variability:</strong> {sessionSummary.emotional_variability}</p>
               </CardContent>
             </Card>
           )}
