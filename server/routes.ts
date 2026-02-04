@@ -680,14 +680,13 @@ Please try asking your question again in a few moments when Gemini API quota is 
 
   apiRouter.post("/media/analyze", requireAuth, async (req: any, res) => {
     try {
-      const { mediaType, duration, recordingUrl } = req.body;
+      const { mediaType, duration, recordingUrl, analysisResult } = req.body;
       
       if (!mediaType || !duration) {
         return res.status(400).json({ error: 'Media type and duration are required' });
       }
 
-      // Mock AI analysis - In production, this would call OpenAI/Anthropic with actual audio/video processing
-      const analysisResult = {
+      const resolvedAnalysisResult = analysisResult ?? {
         vocalStressLevel: Math.round(Math.random() * 40 + 30), // 30-70
         emotionalState: ['calm', 'anxious', 'focused', 'overwhelmed', 'energized'][Math.floor(Math.random() * 5)],
         speechPace: ['SLOW', 'NORMAL', 'RAPID'][Math.floor(Math.random() * 3)],
@@ -710,7 +709,7 @@ Please try asking your question again in a few moments when Gemini API quota is 
         mediaType,
         duration,
         recordingUrl: recordingUrl || null,
-        analysisResult
+        analysisResult: resolvedAnalysisResult
       });
 
       res.json(session);

@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Camera, Sparkles, Brain } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 
 /* ===============================
    CONFIG
@@ -52,6 +53,26 @@ type SessionSummary = {
   emotional_variability: string;
   concealed_emotion_index: number;
   dominant_emotion: string;
+  overall_score?: number;
+  audio_stress_proxy?: number;
+};
+
+type AudioSummary = {
+  duration_sec: number;
+  rms: number;
+  peak: number;
+  energy_db: number;
+  zcr: number;
+  silence_ratio: number;
+  speech_ratio: number;
+  speech_bursts: number;
+  avg_burst_sec: number;
+  burst_rate_per_min: number;
+  pitch_mean_hz: number;
+  pitch_std_hz: number;
+  pitch_range_hz: number;
+  stress_proxy: number;
+  sample_rate: number;
 };
 
 export default function MediaAnalysis() {
@@ -68,8 +89,10 @@ export default function MediaAnalysis() {
 
   const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
   const [sessionSummary, setSessionSummary] = useState<SessionSummary | null>(null);
+  const [audioSummary, setAudioSummary] = useState<AudioSummary | null>(null);
   const [humanReport, setHumanReport] = useState<string[] | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [reportPdfUrl, setReportPdfUrl] = useState<string | null>(null);
 
   const [questions, setQuestions] = useState<string[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -91,7 +114,9 @@ export default function MediaAnalysis() {
   const startRecording = async () => {
     setErrorMessage(null);
     setSessionSummary(null);
+    setAudioSummary(null);
     setHumanReport(null);
+    setReportPdfUrl(null);
     setRecordedVideoUrl(null);
     setSecondsLeft(RECORDING_DURATION);
 
@@ -177,7 +202,27 @@ export default function MediaAnalysis() {
       }
 
       setSessionSummary(data.session_summary);
+      setAudioSummary(data.audio_summary ?? null);
       setHumanReport(Array.isArray(data.human_report) ? data.human_report : null);
+      setReportPdfUrl(data.report_pdf_url ? `http://localhost:8000${data.report_pdf_url}` : null);
+
+      try {
+        await apiRequest("POST", "/api/media/analyze", {
+          mediaType: "VIDEO",
+          duration: RECORDING_DURATION,
+          recordingUrl: null,
+          analysisResult: {
+            session_summary: data.session_summary,
+            human_report: data.human_report,
+            audio_summary: data.audio_summary,
+            frames_analyzed: data.frames_analyzed,
+            audio_status: data.audio,
+            report_pdf_url: data.report_pdf_url ? `http://localhost:8000${data.report_pdf_url}` : null,
+          },
+        });
+      } catch (storeError) {
+        console.warn("Failed to store media analysis session:", storeError);
+      }
     } catch (err) {
       console.error(err);
       setErrorMessage("Analysis failed. Please try again.");
@@ -268,7 +313,7 @@ export default function MediaAnalysis() {
 
           {/* HUMAN REPORT */}
           {humanReport && (
-            <Card className="border-primary/40">
+            <Card className="border-primary/40 bg-gradient-to-br from-primary/5 to-background">
               <CardHeader>
                 <CardTitle>Session Reflection</CardTitle>
                 <CardDescription>
@@ -276,9 +321,14 @@ export default function MediaAnalysis() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
-                {humanReport.map((line, idx) => (
-                  <p key={idx}>• {line}</p>
-                ))}
+                <div className="grid gap-2">
+                  {humanReport.map((line, idx) => (
+                    <div key={idx} className="flex gap-2 items-start">
+                      <span className="text-primary">•</span>
+                      <p>{line}</p>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           )}
@@ -292,12 +342,108 @@ export default function MediaAnalysis() {
                   Numerical indicators for reference.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="text-sm space-y-1">
-                <p><strong>Dominant Emotion:</strong> {sessionSummary.dominant_emotion}</p>
-                <p><strong>Average Stress:</strong> {sessionSummary.avg_stress}</p>
-                <p><strong>Engagement:</strong> {sessionSummary.engagement_score}</p>
-                <p><strong>Valence Balance:</strong> {sessionSummary.emotional_valence_balance}</p>
-                <p><strong>Emotional Variability:</strong> {sessionSummary.emotional_variability}</p>
+              <CardContent className="text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Overall Score</p>
+                    <p className="text-foreground text-xl font-semibold">
+                      {sessionSummary.overall_score ?? "—"}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Dominant Emotion</p>
+                    <p className="text-foreground font-semibold">{sessionSummary.dominant_emotion}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Avg Stress</p>
+                    <p className="text-foreground text-xl font-semibold">{sessionSummary.avg_stress}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Engagement</p>
+                    <p className="text-foreground text-xl font-semibold">{sessionSummary.engagement_score}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Valence Balance</p>
+                    <p className="text-foreground font-medium">{sessionSummary.emotional_valence_balance}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Emotional Variability</p>
+                    <p className="text-foreground font-medium">{sessionSummary.emotional_variability}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Stress Peaks</p>
+                    <p className="text-foreground font-medium">{sessionSummary.stress_peaks}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Concealed Emotion</p>
+                    <p className="text-foreground font-medium">{sessionSummary.concealed_emotion_index}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* DOWNLOAD REPORT */}
+          {reportPdfUrl && (
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <a href={reportPdfUrl} target="_blank" rel="noreferrer">
+                  <Button>Download PDF Report</Button>
+                </a>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* AUDIO METRICS */}
+          {audioSummary && (
+            <Card className="border-muted">
+              <CardHeader>
+                <CardTitle>Audio Metrics</CardTitle>
+                <CardDescription>
+                  Voice energy, pauses, and speech flow indicators.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Energy (dB)</p>
+                    <p className="text-foreground text-xl font-semibold">{audioSummary.energy_db}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Speech Ratio</p>
+                    <p className="text-foreground text-xl font-semibold">{audioSummary.speech_ratio}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Pitch Std (Hz)</p>
+                    <p className="text-foreground text-xl font-semibold">{audioSummary.pitch_std_hz}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Stress Proxy</p>
+                    <p className="text-foreground text-xl font-semibold">{audioSummary.stress_proxy}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Silence Ratio</p>
+                    <p className="text-foreground font-medium">{audioSummary.silence_ratio}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Bursts / Min</p>
+                    <p className="text-foreground font-medium">{audioSummary.burst_rate_per_min}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Pitch Mean (Hz)</p>
+                    <p className="text-foreground font-medium">{audioSummary.pitch_mean_hz}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3 bg-background/70">
+                    <p className="text-muted-foreground text-xs">Pitch Range (Hz)</p>
+                    <p className="text-foreground font-medium">{audioSummary.pitch_range_hz}</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}

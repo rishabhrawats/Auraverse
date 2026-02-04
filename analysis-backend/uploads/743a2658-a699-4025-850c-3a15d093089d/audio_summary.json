@@ -1,0 +1,17 @@
+{
+  "duration_sec": 90.0,
+  "rms": 0.0792,
+  "peak": 1.0,
+  "energy_db": -22.02,
+  "zcr": 0.1126,
+  "silence_ratio": 0.604,
+  "speech_ratio": 0.396,
+  "speech_bursts": 165,
+  "avg_burst_sec": 0.28,
+  "burst_rate_per_min": 110.0,
+  "pitch_mean_hz": 260.3,
+  "pitch_std_hz": 97.6,
+  "pitch_range_hz": 324.5,
+  "stress_proxy": 0.883,
+  "sample_rate": 16000
+}

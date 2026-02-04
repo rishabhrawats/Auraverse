@@ -1,0 +1,93 @@
+[
+  {
+    "frame_index": 0,
+    "stress": 0.743,
+    "positive_affect": 0.178,
+    "negative_affect": 0.293,
+    "engagement": 0.669
+  },
+  {
+    "frame_index": 1,
+    "stress": 0.643,
+    "positive_affect": 0.306,
+    "negative_affect": 0.33,
+    "engagement": 0.48
+  },
+  {
+    "frame_index": 2,
+    "stress": 0.541,
+    "positive_affect": 0.108,
+    "negative_affect": 0.275,
+    "engagement": 0.6
+  },
+  {
+    "frame_index": 3,
+    "stress": 0.64,
+    "positive_affect": 0.144,
+    "negative_affect": 0.288,
+    "engagement": 0.781
+  },
+  {
+    "frame_index": 4,
+    "stress": 0.397,
+    "positive_affect": 0.37,
+    "negative_affect": 0.389,
+    "engagement": 0.82
+  },
+  {
+    "frame_index": 5,
+    "stress": 0.673,
+    "positive_affect": 0.53,
+    "negative_affect": 0.57,
+    "engagement": 0.708
+  },
+  {
+    "frame_index": 6,
+    "stress": 0.682,
+    "positive_affect": 0.373,
+    "negative_affect": 0.404,
+    "engagement": 0.661
+  },
+  {
+    "frame_index": 7,
+    "stress": 0.618,
+    "positive_affect": 0.166,
+    "negative_affect": 0.508,
+    "engagement": 0.503
+  },
+  {
+    "frame_index": 8,
+    "stress": 0.863,
+    "positive_affect": 0.269,
+    "negative_affect": 0.544,
+    "engagement": 0.604
+  },
+  {
+    "frame_index": 9,
+    "stress": 0.711,
+    "positive_affect": 0.289,
+    "negative_affect": 0.341,
+    "engagement": 0.641
+  },
+  {
+    "frame_index": 10,
+    "stress": 0.367,
+    "positive_affect": 0.389,
+    "negative_affect": 0.536,
+    "engagement": 0.747
+  },
+  {
+    "frame_index": 11,
+    "stress": 0.615,
+    "positive_affect": 0.295,
+    "negative_affect": 0.43,
+    "engagement": 0.628
+  },
+  {
+    "frame_index": 12,
+    "stress": 0.52,
+    "positive_affect": 0.392,
+    "negative_affect": 0.403,
+    "engagement": 0.738
+  }
+]

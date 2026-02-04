@@ -5,12 +5,29 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EIChart } from "@/components/insights/ei-chart";
 import type { EISnapshot } from "@/types";
+import { apiRequest } from "@/lib/queryClient";
 
 const TIME_WINDOWS = [
   { value: 7, label: "7 days" },
   { value: 14, label: "14 days" },
   { value: 28, label: "28 days" },
 ];
+
+function clamp01(value: number) {
+  return Math.max(0, Math.min(1, value));
+}
+
+function buildSparkline(values: number[], width: number, height: number) {
+  if (values.length < 2) return "";
+  const step = width / (values.length - 1);
+  return values
+    .map((v, i) => {
+      const x = Math.round(i * step);
+      const y = Math.round(height - v * height);
+      return `${x},${y}`;
+    })
+    .join(" ");
+}
 
 export default function Insights() {
   const [timeWindow, setTimeWindow] = useState(28);
@@ -25,7 +42,17 @@ export default function Insights() {
     queryKey: ["/api/insights/correlation", { days: timeWindow }],
   });
 
-  const isLoading = eiLoading || correlationLoading;
+  const { data: sessionsData, isLoading: sessionsLoading } = useQuery({
+    queryKey: ["media-sessions", timeWindow],
+    queryFn: async () => {
+      const res = await apiRequest("GET", `/api/media?limit=50`);
+      return await res.json();
+    },
+  });
+
+  const isLoading = eiLoading || correlationLoading || sessionsLoading;
+
+  const sessions = sessionsData ?? [];
 
   if (isLoading) {
     return (
@@ -290,6 +317,150 @@ export default function Insights() {
                 </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Session History */}
+        <Card className="bg-card border-border">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-foreground">
+                Session History
+              </h3>
+              <span className="text-xs text-muted-foreground">
+                Your recent media analysis sessions
+              </span>
+            </div>
+            {sessions.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No sessions recorded yet.</p>
+            ) : (
+              <div className="space-y-6">
+                {sessions.map((session: any) => {
+                  const summary = session.analysisResult?.session_summary;
+                  const overall = clamp01(summary?.overall_score ?? 0);
+                  const engagement = clamp01(summary?.engagement_score ?? 0);
+                  const calm = clamp01(1 - (summary?.avg_stress ?? 0));
+                  const valence = clamp01(((summary?.emotional_valence_balance ?? 0) + 1) / 2);
+                  const points = buildSparkline([overall, engagement, calm, valence, overall], 120, 28);
+
+                  return (
+                  <div key={session.id} className="border border-border rounded-xl p-5 bg-gradient-to-br from-background to-muted/30">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">
+                          Session {session.id?.slice(0, 8)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(session.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {points && (
+                          <div className="hidden sm:block">
+                            <svg width="120" height="28" viewBox="0 0 120 28" fill="none">
+                              <polyline
+                                points={points}
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                className="text-primary/70"
+                                fill="none"
+                              />
+                            </svg>
+                          </div>
+                        )}
+                        <span className="text-[11px] px-2 py-1 rounded-full border border-border bg-background/70 text-muted-foreground">
+                          Updated {new Date(session.createdAt).toLocaleDateString()}
+                        </span>
+                        {session.analysisResult?.session_summary?.dominant_emotion && (
+                          <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
+                            {session.analysisResult.session_summary.dominant_emotion}
+                          </span>
+                        )}
+                        {session.analysisResult?.report_pdf_url && (
+                          <a
+                            href={session.analysisResult.report_pdf_url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <Button variant="outline" size="sm">Download PDF</Button>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
+                    {session.analysisResult?.session_summary && (
+                      <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                        <div className="rounded-lg bg-background/70 border border-border p-3">
+                          <p className="text-muted-foreground">Overall Score</p>
+                          <p className="text-foreground font-semibold text-lg">
+                            {session.analysisResult.session_summary.overall_score ?? "—"}
+                          </p>
+                        </div>
+                        <div className="rounded-lg bg-background/70 border border-border p-3">
+                          <p className="text-muted-foreground">Avg Stress</p>
+                          <p className="text-foreground font-semibold text-lg">
+                            {session.analysisResult.session_summary.avg_stress}
+                          </p>
+                        </div>
+                        <div className="rounded-lg bg-background/70 border border-border p-3">
+                          <p className="text-muted-foreground">Engagement</p>
+                          <p className="text-foreground font-semibold text-lg">
+                            {session.analysisResult.session_summary.engagement_score}
+                          </p>
+                        </div>
+                        <div className="rounded-lg bg-background/70 border border-border p-3">
+                          <p className="text-muted-foreground">Valence</p>
+                          <p className="text-foreground font-semibold text-lg">
+                            {session.analysisResult.session_summary.emotional_valence_balance}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {session.analysisResult?.human_report && (
+                      <div className="mt-4 rounded-lg bg-primary/5 border border-primary/20 p-4">
+                        <p className="text-sm font-semibold text-foreground mb-2">Coaching Highlights</p>
+                        <ul className="text-xs text-muted-foreground space-y-1">
+                          {session.analysisResult.human_report.slice(0, 3).map((line: string, idx: number) => (
+                            <li key={idx}>• {line}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {session.analysisResult?.audio_summary && (
+                      <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                        <div className="rounded-lg bg-background/70 border border-border p-3">
+                          <p className="text-muted-foreground">Speech Ratio</p>
+                          <p className="text-foreground font-medium">
+                            {session.analysisResult.audio_summary.speech_ratio}
+                          </p>
+                        </div>
+                        <div className="rounded-lg bg-background/70 border border-border p-3">
+                          <p className="text-muted-foreground">Pitch Std (Hz)</p>
+                          <p className="text-foreground font-medium">
+                            {session.analysisResult.audio_summary.pitch_std_hz}
+                          </p>
+                        </div>
+                        <div className="rounded-lg bg-background/70 border border-border p-3">
+                          <p className="text-muted-foreground">Energy (dB)</p>
+                          <p className="text-foreground font-medium">
+                            {session.analysisResult.audio_summary.energy_db}
+                          </p>
+                        </div>
+                        <div className="rounded-lg bg-background/70 border border-border p-3">
+                          <p className="text-muted-foreground">Stress Proxy</p>
+                          <p className="text-foreground font-medium">
+                            {session.analysisResult.audio_summary.stress_proxy}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
