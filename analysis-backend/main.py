@@ -18,12 +18,18 @@ from fpdf import FPDF
 
 app = FastAPI()
 
+frontend_origins = [
+    "http://localhost:5000",
+    "http://127.0.0.1:5000",
+    "https://auraverse-1.onrender.com",
+]
+extra_origins = os.getenv("FRONTEND_URL", "")
+if extra_origins:
+    frontend_origins.extend([o.strip() for o in extra_origins.split(",") if o.strip()])
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5000",
-        "http://127.0.0.1:5000",
-    ],
+    allow_origins=frontend_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -535,4 +541,3 @@ async def download_session_report(session_id: str):
         media_type="application/pdf",
         filename=f"session_{session_id}_report.pdf"
     )
-

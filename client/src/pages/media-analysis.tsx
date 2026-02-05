@@ -16,7 +16,8 @@ import { apiRequest } from "@/lib/queryClient";
 ================================ */
 const RECORDING_DURATION = 90; // 1.5 minutes
 const QUESTIONS_PER_SESSION = 3;
-const ANALYSIS_URL = import.meta.env.VITE_ANALYSIS_URL || "http://localhost:8000";
+const RAW_ANALYSIS_URL = import.meta.env.VITE_ANALYSIS_URL || "http://localhost:8000";
+const ANALYSIS_URL = RAW_ANALYSIS_URL.replace(/\/+$/, "");
 
 /* ===============================
    QUESTION BANK (18)
@@ -195,6 +196,10 @@ export default function MediaAnalysis() {
         method: "POST",
         body: formData,
       });
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || `Upload failed (${res.status})`);
+      }
 
       const data = await res.json();
 
