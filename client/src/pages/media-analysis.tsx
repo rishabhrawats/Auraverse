@@ -16,6 +16,7 @@ import { apiRequest } from "@/lib/queryClient";
 ================================ */
 const RECORDING_DURATION = 90; // 1.5 minutes
 const QUESTIONS_PER_SESSION = 3;
+const ANALYSIS_URL = import.meta.env.VITE_ANALYSIS_URL || "http://localhost:8000";
 
 /* ===============================
    QUESTION BANK (18)
@@ -190,7 +191,7 @@ export default function MediaAnalysis() {
       const formData = new FormData();
       formData.append("video", blob, "session.webm");
 
-      const res = await fetch("http://localhost:8000/api/session/upload", {
+      const res = await fetch(`${ANALYSIS_URL}/api/session/upload`, {
         method: "POST",
         body: formData,
       });
@@ -204,7 +205,7 @@ export default function MediaAnalysis() {
       setSessionSummary(data.session_summary);
       setAudioSummary(data.audio_summary ?? null);
       setHumanReport(Array.isArray(data.human_report) ? data.human_report : null);
-      setReportPdfUrl(data.report_pdf_url ? `http://localhost:8000${data.report_pdf_url}` : null);
+      setReportPdfUrl(data.report_pdf_url ? `${ANALYSIS_URL}${data.report_pdf_url}` : null);
 
       try {
         await apiRequest("POST", "/api/media/analyze", {
@@ -217,7 +218,7 @@ export default function MediaAnalysis() {
             audio_summary: data.audio_summary,
             frames_analyzed: data.frames_analyzed,
             audio_status: data.audio,
-            report_pdf_url: data.report_pdf_url ? `http://localhost:8000${data.report_pdf_url}` : null,
+            report_pdf_url: data.report_pdf_url ? `${ANALYSIS_URL}${data.report_pdf_url}` : null,
           },
         });
       } catch (storeError) {

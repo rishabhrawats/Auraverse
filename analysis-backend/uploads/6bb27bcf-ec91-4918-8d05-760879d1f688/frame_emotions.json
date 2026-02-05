@@ -1,0 +1,37 @@
+[
+  {
+    "frame_index": 0,
+    "stress": 0.422,
+    "positive_affect": 0.212,
+    "negative_affect": 0.366,
+    "engagement": 0.888
+  },
+  {
+    "frame_index": 1,
+    "stress": 0.855,
+    "positive_affect": 0.387,
+    "negative_affect": 0.411,
+    "engagement": 0.622
+  },
+  {
+    "frame_index": 2,
+    "stress": 0.554,
+    "positive_affect": 0.428,
+    "negative_affect": 0.303,
+    "engagement": 0.536
+  },
+  {
+    "frame_index": 3,
+    "stress": 0.654,
+    "positive_affect": 0.367,
+    "negative_affect": 0.612,
+    "engagement": 0.777
+  },
+  {
+    "frame_index": 4,
+    "stress": 0.489,
+    "positive_affect": 0.232,
+    "negative_affect": 0.352,
+    "engagement": 0.611
+  }
+]

@@ -424,11 +424,16 @@ export class FirestoreStorage implements IStorage {
   async getMediaAnalysisSessions(userId: string, limit: number = 10): Promise<MediaAnalysisSession[]> {
     const snapshot = await adminDb.collection(collections.mediaAnalysisSessions)
       .where('userId', '==', userId)
-      .orderBy('createdAt', 'desc')
       .limit(limit)
       .get();
-    
-    return snapshot.docs.map(doc => docToObject<MediaAnalysisSession>(doc)!);
+
+    const sessions = snapshot.docs.map(doc => docToObject<MediaAnalysisSession>(doc)!).filter(Boolean);
+    sessions.sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
+    return sessions;
   }
 
   async createMediaAnalysisSession(insertSession: InsertMediaAnalysisSession): Promise<MediaAnalysisSession> {

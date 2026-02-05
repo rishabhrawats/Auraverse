@@ -1,0 +1,12 @@
+{
+  "session_duration": "90s",
+  "avg_stress": 0.601,
+  "stress_peaks": 92,
+  "emotional_valence_balance": -0.049,
+  "engagement_score": 0.646,
+  "emotional_variability": "Medium",
+  "concealed_emotion_index": 0.797,
+  "dominant_emotion": "Stress / Anxiety",
+  "overall_score": 0.389,
+  "audio_stress_proxy": 0.851
+}

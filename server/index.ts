@@ -69,9 +69,8 @@ app.use((req, res, next) => {
   // Use PORT from env or default to 5000
   const port = parseInt(process.env.PORT || "5000", 10);
 
-  // ✅ Windows-friendly listen
-  server.listen(port, "localhost", () => {
-    log(`Server running on http://localhost:${port}`);
+  server.listen(port, () => {
+    log(`Server running on port ${port}`);
   });
 
 })();
